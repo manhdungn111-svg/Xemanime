@@ -239,6 +239,31 @@ body.nonav #tabs{display:none}
 .load{display:grid;place-items:center;padding:80px 0}
 #toast{position:fixed;left:50%;bottom:calc(var(--nav) + 24px);transform:translateX(-50%);background:#202228;border:1px solid var(--line);padding:11px 16px;border-radius:8px;font-size:13.5px;z-index:99;opacity:0;pointer-events:none;transition:opacity .25s;max-width:88vw;text-align:center}
 #toast.on{opacity:1}
+/* iPhone XS / X / 11 Pro và các màn hình nhỏ khác (<=400px) */
+@media(max-width:400px){
+  .hero h2{font-size:27px;margin-bottom:6px}
+  .meta{font-size:11.5px;gap:4px 6px}
+  .clamp{font-size:13px;-webkit-line-clamp:3}
+  .cta{margin:12px 0}
+  .btn{height:44px}
+  .row{margin-top:18px}
+  .row h3{font-size:16px;padding-bottom:10px}
+  .card{width:40vw}
+  .ct{font-size:13px}
+  .gr{grid-template-columns:repeat(3,minmax(0,1fr));gap:14px 10px;padding:6px 14px}
+  .gr .ct{font-size:12px;margin-top:6px}
+  .gr .cs{font-size:10.5px}
+  .inst{padding:10px;gap:10px;margin:12px 14px 0}
+  .inst img{width:38px;height:38px}
+  .inst b{font-size:13.5px}
+  .inst span{display:none}
+  .inst .btn{height:34px;padding:0 12px}
+  .dtitle h1{font-size:23px}
+  .wt{font-size:21px}
+  .prow .btn{min-width:108px}
+  .lr .th{width:100px}
+}
+@media(max-height:850px){.hero{height:64vh;min-height:400px}}
 @media(min-width:760px){
   .card{width:170px}
   .hero{height:min(70vh,600px)}
@@ -492,7 +517,7 @@ async function vHome(tok){
   setView(`<div class="hero" id="hero"><div class="top">${LOGO}<div style="display:flex;gap:6px;align-items:center"><a class="chip" href="#/account">${SRC_NAME[src]}</a><a class="ib" href="#/search">${I.search}</a><a href="#/account" aria-label="Tài khoản">${avatar(32)}</a></div></div></div><div id="rows"></div>`);
   const rows=$('#rows');
   if(!standalone()&&!store.get('fa_inst_x',false)){
-    rows.insertAdjacentHTML('beforebegin',`<div class="inst" id="inst"><img src="icon-192.png" alt=""><div><b>Thêm vào màn hình chính</b>Mở nhanh như một ứng dụng</div><button class="btn pri" id="ib1">Thêm</button><button class="ib" id="ib2" aria-label="Đóng">${I.close}</button></div>`);
+    rows.insertAdjacentHTML('beforebegin',`<div class="inst" id="inst"><img src="icon-192.png" alt=""><div><b>Thêm vào màn hình chính</b><span>Mở nhanh như một ứng dụng</span></div><button class="btn pri" id="ib1">Thêm</button><button class="ib" id="ib2" aria-label="Đóng">${I.close}</button></div>`);
     $('#ib1').onclick=installApp; $('#ib2').onclick=()=>{store.set('fa_inst_x',true);$('#inst').remove()};
   }
   // Tiếp tục xem
