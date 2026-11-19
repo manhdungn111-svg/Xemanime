@@ -1,0 +1,594 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#000000">
+<title>Flix Anime</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%230a7aff'/%3E%3Cstop offset='1' stop-color='%23002290'/%3E%3C/linearGradient%3E%3C/defs%3E%3Ccircle cx='32' cy='32' r='30' fill='url(%23g)'/%3E%3Cpath d='M25 19l20 13-20 13z' fill='%23fff'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#000; --s1:#141518; --s2:#23252b; --line:#2a2c33;
+  --t:#fff; --m:#a0a3ab;
+  --b:#0a7aff; --b2:#0446c8; --b3:#002290;
+  --grad:linear-gradient(135deg,#0a7aff,#002290);
+  --nav:62px;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{background:var(--bg);color:var(--t);font-family:Lato,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+body{min-height:100vh;padding-bottom:calc(var(--nav) + env(safe-area-inset-bottom))}
+body.nonav{padding-bottom:0}
+a{color:inherit;text-decoration:none}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+svg{display:block}
+#app{max-width:980px;margin:0 auto;min-height:100vh;position:relative}
+.hide{display:none!important}
+
+/* top bar */
+.bar{display:flex;align-items:center;gap:10px;padding:calc(10px + env(safe-area-inset-top)) 16px 10px;position:sticky;top:0;z-index:20;background:rgba(0,0,0,.92);backdrop-filter:blur(8px)}
+.bar h1{font-size:16px;font-weight:700;flex:1;text-align:center}
+.bar .sp{flex:1}
+.ib{width:40px;height:40px;display:grid;place-items:center;border-radius:50%}
+.ib:active{background:var(--s2)}
+.logo{display:flex;align-items:center;gap:8px;font-weight:900;font-size:19px;letter-spacing:.2px}
+.logo i{width:30px;height:30px;border-radius:50%;background:var(--grad);display:grid;place-items:center;box-shadow:0 0 0 2px rgba(10,122,255,.25)}
+.logo b{background:linear-gradient(90deg,#5aa8ff,#0a7aff);-webkit-background-clip:text;background-clip:text;color:transparent}
+.chip{font-size:12px;font-weight:700;padding:4px 10px;border-radius:999px;background:rgba(255,255,255,.14);backdrop-filter:blur(6px)}
+
+/* hero */
+.hero{position:relative;height:min(74vh,640px);min-height:440px;overflow:hidden;background:var(--s1)}
+.hero .bg{position:absolute;inset:0;background-size:cover;background-position:center top;transition:opacity .5s}
+.hero::after{content:"";position:absolute;inset:0;background:linear-gradient(to bottom,rgba(0,0,0,.55) 0,rgba(0,0,0,0) 22%,rgba(0,0,0,.2) 48%,rgba(0,0,0,.92) 82%,#000 100%)}
+.hero .top{position:absolute;z-index:3;left:0;right:0;top:0;display:flex;align-items:center;justify-content:space-between;padding:calc(10px + env(safe-area-inset-top)) 16px}
+.hero .info{position:absolute;z-index:3;left:0;right:0;bottom:0;padding:0 16px 14px}
+.hero h2{font-size:clamp(28px,7vw,46px);line-height:1.05;font-weight:900;text-shadow:0 2px 14px rgba(0,0,0,.8);margin-bottom:8px;max-width:780px}
+.meta{display:flex;flex-wrap:wrap;gap:6px 8px;align-items:center;font-size:12px;color:#d5d7dc;margin-bottom:8px}
+.meta .tag{border:1px solid #9aa;padding:0 5px;border-radius:3px;font-weight:700}
+.clamp{display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;font-size:13.5px;line-height:1.45;color:#e8e9ec;max-width:780px}
+.cta{display:flex;gap:10px;margin:14px 0 14px;max-width:780px}
+.btn{height:46px;border-radius:4px;display:inline-flex;align-items:center;justify-content:center;gap:8px;font-weight:700;font-size:15px;padding:0 18px}
+.btn.pri{background:linear-gradient(90deg,#0a7aff,#0560e0);flex:1;box-shadow:0 4px 18px rgba(10,122,255,.35)}
+.btn.pri:active{filter:brightness(.9)}
+.btn.sq{width:46px;padding:0;border:2px solid var(--b);color:var(--b)}
+.btn.sq.on{background:var(--b);color:#fff}
+.btn.ghost{border:1px solid var(--line);background:var(--s1)}
+.dots{display:flex;gap:6px;max-width:780px}
+.dots button{flex:1;height:5px;border-radius:3px;background:rgba(255,255,255,.28);position:relative;overflow:hidden}
+.dots button.on::after{content:"";position:absolute;inset:0;background:#fff;transform-origin:left;animation:fill 6s linear forwards}
+@keyframes fill{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+
+/* rows */
+.row{margin:22px 0 4px}
+.row h3{font-size:17px;font-weight:900;padding:0 16px 12px}
+.scroller{display:flex;gap:12px;overflow-x:auto;padding:0 16px 4px;scroll-snap-type:x proximity;scrollbar-width:none}
+.scroller::-webkit-scrollbar{display:none}
+.card{flex:0 0 auto;width:42vw;max-width:178px;scroll-snap-align:start;display:block}
+.pic{aspect-ratio:2/3;background:var(--s1);border-radius:3px;overflow:hidden;position:relative}
+.pic img{width:100%;height:100%;object-fit:cover;display:block}
+.pic .badge{position:absolute;left:6px;bottom:6px;font-size:10.5px;font-weight:700;background:rgba(0,0,0,.72);padding:2px 6px;border-radius:3px}
+.ct{font-size:13.5px;font-weight:700;margin-top:8px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;line-height:1.25}
+.cs{font-size:11.5px;color:var(--m);margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.gr{display:grid;grid-template-columns:repeat(auto-fill,minmax(112px,1fr));gap:16px 12px;padding:6px 16px}
+.gr .card{width:auto;max-width:none}
+.more{display:flex;flex-direction:column;align-items:center;gap:10px;padding:18px}
+
+/* chips row */
+.chips{display:flex;gap:8px;overflow-x:auto;padding:4px 16px 10px;scrollbar-width:none}
+.chips::-webkit-scrollbar{display:none}
+.pill{flex:0 0 auto;padding:8px 16px;border-radius:999px;background:var(--s2);font-size:13px;font-weight:700;white-space:nowrap}
+.pill.on{background:var(--b)}
+
+/* tabs */
+.tabs{display:flex;gap:22px;padding:0 16px;border-bottom:1px solid var(--line);overflow-x:auto}
+.tabs button{padding:12px 0;font-size:13px;font-weight:700;color:var(--m);border-bottom:2px solid transparent;white-space:nowrap}
+.tabs button.on{color:#fff;border-color:var(--b)}
+
+/* list rows */
+.lr{display:flex;gap:14px;padding:10px 16px;align-items:center}
+.lr .th{width:112px;aspect-ratio:16/10;flex:0 0 auto;background:var(--s1);border-radius:3px;overflow:hidden;position:relative}
+.lr .th img{width:100%;height:100%;object-fit:cover}
+.lr.p .th{width:92px;aspect-ratio:3/4}
+.lr .tx{min-width:0;flex:1}
+.lr .tx b{display:block;font-size:14.5px;line-height:1.25;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.lr .tx span{display:block;font-size:12px;color:var(--m);margin-top:4px}
+.playi{position:absolute;inset:0;display:grid;place-items:center}
+.playi i{width:36px;height:36px;border-radius:50%;background:rgba(0,0,0,.55);border:2px solid #fff;display:grid;place-items:center}
+
+/* search */
+.sbox{display:flex;gap:10px;align-items:center;padding:calc(10px + env(safe-area-inset-top)) 16px 10px;position:sticky;top:0;background:#000;z-index:20}
+.sbox label{flex:1;display:flex;align-items:center;gap:8px;background:var(--s2);border-radius:8px;padding:0 12px;height:42px}
+.sbox input{flex:1;background:none;border:0;outline:0;color:#fff;font:inherit;font-size:15px;min-width:0}
+.sbox a{font-size:14px}
+
+/* detail */
+.dhead{position:relative;height:260px;background:var(--s1);overflow:hidden}
+.dhead .bg{position:absolute;inset:0;background-size:cover;background-position:center 20%;filter:saturate(1.05)}
+.dhead::after{content:"";position:absolute;inset:0;background:linear-gradient(to bottom,rgba(0,0,0,.6),rgba(0,0,0,.25) 40%,#000 100%)}
+.dhead .tp{position:absolute;z-index:2;top:0;left:0;right:0;display:flex;justify-content:space-between;padding:calc(10px + env(safe-area-inset-top)) 10px}
+.dtitle{position:relative;z-index:2;margin-top:-92px;padding:0 16px;text-align:center}
+.dtitle h1{font-size:26px;font-weight:900;line-height:1.1;text-shadow:0 2px 12px #000}
+.dtitle small{display:block;margin-top:6px;color:#cfd2d8;font-size:13px}
+.dmeta{justify-content:center;margin-top:12px;padding:0 16px}
+.acts{display:flex;justify-content:center;gap:36px;margin:12px 0}
+.acts button{display:flex;flex-direction:column;align-items:center;gap:4px;color:var(--b);font-size:11px;font-weight:700}
+.desc{padding:0 16px;font-size:13.5px;line-height:1.5;color:#dcdee3}
+.desc.cl{display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.link{color:var(--b);font-size:12.5px;font-weight:700;padding:8px 16px;display:inline-block}
+.sel{margin:12px 16px;background:var(--s2);color:#fff;border:0;border-radius:6px;padding:10px 12px;font:inherit;font-size:13px;font-weight:700;width:calc(100% - 32px)}
+.stick{position:fixed;left:0;right:0;bottom:0;z-index:30;padding:10px 16px calc(10px + env(safe-area-inset-bottom));background:linear-gradient(to top,#000 70%,rgba(0,0,0,0));}
+.stick .in{max-width:980px;margin:0 auto;display:flex;gap:10px}
+.dpad{padding-bottom:90px}
+
+/* watch */
+.pbox{background:#000;aspect-ratio:16/9;width:100%;position:sticky;top:0;z-index:25}
+.pbox video,.pbox iframe{width:100%;height:100%;border:0;background:#000}
+.pbox .ld{position:absolute;inset:0;display:grid;place-items:center;pointer-events:none}
+.wtitle{padding:14px 16px 4px}
+.wtitle small{color:var(--b);font-weight:700;font-size:12.5px}
+.wtitle h2{font-size:19px;font-weight:900;margin-top:4px;line-height:1.2}
+.epgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(64px,1fr));gap:8px;padding:6px 16px 16px}
+.epgrid a{background:var(--s2);border-radius:6px;text-align:center;padding:10px 0;font-size:13px;font-weight:700}
+.epgrid a.on{background:var(--b)}
+.sec{padding:14px 16px 4px;font-size:15px;font-weight:900;display:flex;justify-content:space-between;align-items:center}
+
+/* empty / account */
+.empty{text-align:center;padding:48px 28px}
+.empty svg{margin:0 auto 18px}
+.empty h3{font-size:18px;font-weight:900;margin-bottom:8px}
+.empty p{color:var(--m);font-size:14px;margin-bottom:22px}
+.empty .btn{width:100%;max-width:420px}
+.empty-s{color:var(--m);font-size:14px;text-align:center;padding:20px}
+.list a.i,.list button.i{display:flex;justify-content:space-between;align-items:center;width:100%;text-align:left;padding:15px 16px;border-bottom:1px solid var(--line);font-size:15px}
+.list .i small{color:var(--m);font-size:12.5px}
+.avatar{width:84px;height:84px;border-radius:50%;background:var(--grad);display:grid;place-items:center;margin:18px auto 10px;font-size:34px;font-weight:900}
+.seg{display:flex;margin:10px 16px;background:var(--s2);border-radius:8px;padding:3px}
+.seg button{flex:1;padding:10px;border-radius:6px;font-weight:700;font-size:14px;color:var(--m)}
+.seg button.on{background:var(--b);color:#fff}
+.year{display:block;padding:17px 16px;font-size:16px}
+
+/* nav */
+#tabs{position:fixed;left:0;right:0;bottom:0;z-index:40;background:rgba(10,10,12,.96);backdrop-filter:blur(10px);border-top:1px solid #1d1f24;padding-bottom:env(safe-area-inset-bottom)}
+#tabs .in{max-width:980px;margin:0 auto;display:flex;height:var(--nav)}
+#tabs a{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;font-size:10.5px;color:#d9dbe0}
+#tabs a.on{color:var(--b)}
+body.nonav #tabs{display:none}
+
+.spin{width:34px;height:34px;border-radius:50%;border:3px solid rgba(255,255,255,.15);border-top-color:var(--b);animation:sp .8s linear infinite}
+@keyframes sp{to{transform:rotate(360deg)}}
+.load{display:grid;place-items:center;padding:80px 0}
+#toast{position:fixed;left:50%;bottom:calc(var(--nav) + 24px);transform:translateX(-50%);background:#202228;border:1px solid var(--line);padding:11px 16px;border-radius:8px;font-size:13.5px;z-index:99;opacity:0;pointer-events:none;transition:opacity .25s;max-width:88vw;text-align:center}
+#toast.on{opacity:1}
+@media(min-width:760px){
+  .card{width:170px}
+  .hero{height:min(70vh,600px)}
+  .gr{grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:20px 16px}
+  .pbox{position:relative}
+}
+</style>
+</head>
+<body>
+<div id="app"><div id="view"></div></div>
+<nav id="tabs"><div class="in" id="tabin"></div></nav>
+<div id="toast"></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/hls.js/1.5.13/hls.min.js"></script>
+<script>
+/* ================= Cấu hình ================= */
+const KK  = 'https://phimapi.com';          // KKPhim
+const NC  = 'https://phim.nguonc.com';      // NguonC
+const KKIMG = 'https://phimimg.com/';
+const SRC_NAME = {kk:'KKPhim', nc:'NguonC'};
+const GENRES = [
+  ['hanh-dong','Hành động'],['phieu-luu','Phiêu lưu'],['hai-huoc','Hài hước'],['tinh-cam','Tình cảm'],
+  ['vien-tuong','Viễn tưởng'],['hoc-duong','Học đường'],['kinh-di','Kinh dị'],['the-thao','Thể thao'],
+  ['am-nhac','Âm nhạc'],['than-thoai','Thần thoại'],['tam-ly','Tâm lý'],['khoa-hoc','Khoa học']
+];
+
+/* ================= Tiện ích ================= */
+const $ = (s,r=document)=>r.querySelector(s);
+const $$ = (s,r=document)=>[...r.querySelectorAll(s)];
+const esc = s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const strip = s=>String(s||'').replace(/<[^>]*>/g,'').replace(/&nbsp;/g,' ').trim();
+const store = {
+  get(k,d){try{const v=localStorage.getItem(k);return v==null?d:JSON.parse(v)}catch{return d}},
+  set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch{}}
+};
+let src = store.get('fa_src','kk');
+let nav = 0;               // token chống render trễ
+let timers = [];
+const cache = new Map();
+
+function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('on');clearTimeout(toast.t);toast.t=setTimeout(()=>t.classList.remove('on'),2600)}
+
+async function jget(url){
+  if(cache.has(url)) return cache.get(url);
+  const c=new AbortController(), t=setTimeout(()=>c.abort(),15000);
+  try{
+    const r=await fetch(url,{signal:c.signal});
+    if(!r.ok) throw new Error('HTTP '+r.status);
+    const j=await r.json(); cache.set(url,j); return j;
+  } finally {clearTimeout(t)}
+}
+const img = u => !u ? '' : /^(https?:)?\/\//.test(u) ? u : KKIMG+String(u).replace(/^\//,'');
+
+/* ================= API (KKPhim + NguonC) ================= */
+const API = {
+  kk:{
+    list({page=1,cat,year,kind}={}){
+      let u=`${KK}/v1/api/danh-sach/hoat-hinh?page=${page}&limit=24&sort_field=${kind==='new'?'_id':'modified.time'}&sort_type=desc`;
+      if(cat) u+=`&category=${cat}`;
+      if(year) u+=`&year=${year}`;
+      return jget(u);
+    },
+    search:q=>jget(`${KK}/v1/api/tim-kiem?keyword=${encodeURIComponent(q)}&limit=24&category=hoat-hinh`),
+    detail:s=>jget(`${KK}/phim/${encodeURIComponent(s)}`)
+  },
+  nc:{
+    list({page=1,cat,year,kind}={}){
+      let u;
+      if(cat) u=`${NC}/api/films/the-loai/${cat}?page=${page}`;
+      else if(year) u=`${NC}/api/films/nam-phat-hanh/${year}?page=${page}`;
+      else if(kind==='new') u=`${NC}/api/films/phim-moi-cap-nhat?page=${page}`;
+      else u=`${NC}/api/films/danh-sach/hoat-hinh?page=${page}`;
+      return jget(u);
+    },
+    search:q=>jget(`${NC}/api/films/search?keyword=${encodeURIComponent(q)}`),
+    detail:s=>jget(`${NC}/api/film/${encodeURIComponent(s)}`)
+  }
+};
+const itemsOf = j => (j?.data?.items) || j?.items || j?.data?.movies || [];
+const cdnOf = j => j?.data?.APP_DOMAIN_CDN_IMAGE || '';
+
+function norm(it,s,cdn){
+  const fix=u=>{ if(!u) return ''; if(/^(https?:)?\/\//.test(u)) return u; return (cdn?cdn.replace(/\/?$/,'/'):KKIMG)+String(u).replace(/^\//,'') };
+  return {
+    src:s, slug:it.slug, name:it.name||it.origin_name||'', origin:it.origin_name||it.original_name||'',
+    thumb:fix(it.thumb_url||it.poster_url), poster:fix(it.poster_url||it.thumb_url),
+    year:it.year||'', ep:it.episode_current||it.current_episode||'', lang:it.lang||it.language||'',
+    quality:it.quality||'', desc:strip(it.description||it.content||''), type:it.type||''
+  };
+}
+const isAnimeType = t => !t || /hoat|anime/i.test(t);
+const isAnimeCats = a => a.some(c=>/hoạt hình|hoat hinh|anime/i.test(c));
+// Chỉ giữ hoạt hình: KKPhim lọc theo type/category, NguonC kiểm tra thể loại trong trang chi tiết
+async function onlyAnime(items,s,verify){
+  items=items.filter(i=>isAnimeType(i.type));
+  if(s!=='nc'||!verify) return items;
+  const ok=await Promise.allSettled(items.map(i=>getDetail(i.slug,'nc')));
+  return items.filter((_,k)=>ok[k].status==='fulfilled'&&isAnimeCats(ok[k].value.allCats));
+}
+async function fetchList(opts){
+  const s=src, j=await API[s].list(opts);
+  const raw=itemsOf(j).map(i=>norm(i,s,cdnOf(j))).filter(i=>i.slug);
+  const out=await onlyAnime(raw,s,!!(opts.cat||opts.year||opts.kind==='new'));
+  out.raw=raw.length; return out;
+}
+async function fetchSearch(q){
+  const s=src, j=await API[s].search(q);
+  const raw=itemsOf(j).map(i=>norm(i,s,cdnOf(j))).filter(i=>i.slug);
+  return onlyAnime(raw,s,true);
+}
+async function getDetail(slug,s){
+  const j=await API[s].detail(slug);
+  const m=j.movie||j.data?.item||null;
+  if(!m) throw new Error('Không tìm thấy phim');
+  let cats=[];
+  if(s==='kk') cats=(m.category||[]).map(c=>c.name);
+  else Object.values(m.category||{}).forEach(g=>{ if(/thể loại/i.test(g?.group?.name||'')) (g.list||[]).forEach(x=>cats.push(x.name)) });
+  const allCats=s==='kk'?(m.category||[]).map(c=>c.name):Object.values(m.category||{}).flatMap(g=>(g.list||[]).map(x=>x.name));
+  if(m.type&&!isAnimeType(m.type)) allCats.push('__other');
+  const eps=j.episodes||m.episodes||[];
+  const servers=eps.map(sv=>({
+    name:sv.server_name||'Server',
+    eps:(sv.server_data||sv.items||[]).map(e=>({name:e.name,m3u8:e.link_m3u8||e.m3u8||'',embed:e.link_embed||e.embed||''}))
+  })).filter(sv=>sv.eps.length);
+  const base=norm(m,s);
+  const actors=Array.isArray(m.actor)?m.actor.filter(Boolean).join(', '):(m.casts||'');
+  return {...base, slug:base.slug||slug, cats, allCats, servers, time:m.time||'', status:m.status||'', actors,
+    country:Array.isArray(m.country)?m.country.map(c=>c.name).join(', '):'', total:m.episode_total||m.total_episodes||''};
+}
+
+/* ================= Dữ liệu cục bộ ================= */
+const getList = ()=>store.get('fa_list',[]);
+const inList = (s,slug)=>getList().some(x=>x.src===s&&x.slug===slug);
+function toggleList(it){
+  let l=getList();
+  if(l.some(x=>x.src===it.src&&x.slug===it.slug)){ l=l.filter(x=>!(x.src===it.src&&x.slug===it.slug)); toast('Đã xoá khỏi danh sách'); }
+  else { l.unshift({src:it.src,slug:it.slug,name:it.name,thumb:it.thumb,poster:it.poster,year:it.year,ep:it.ep,lang:it.lang}); toast('Đã thêm vào danh sách'); }
+  store.set('fa_list',l);
+}
+const getHist = ()=>store.get('fa_hist',[]);
+function pushHist(it,sv,ep,epName){
+  let h=getHist().filter(x=>!(x.src===it.src&&x.slug===it.slug));
+  h.unshift({src:it.src,slug:it.slug,name:it.name,thumb:it.thumb,poster:it.poster,year:it.year,sv,ep,epName,lang:it.lang});
+  store.set('fa_hist',h.slice(0,60));
+}
+
+/* ================= Icon ================= */
+const I={
+  home:'<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M3 11l9-8 9 8v10h-6v-6H9v6H3z"/></svg>',
+  mark:'<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M6 3h12v18l-6-4-6 4z"/></svg>',
+  markf:'<svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M6 3h12v18l-6-4-6 4z"/></svg>',
+  grid:'<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3.5" y="3.5" width="7" height="7" rx="1.5"/><rect x="13.5" y="3.5" width="7" height="7" rx="1.5"/><rect x="3.5" y="13.5" width="7" height="7" rx="1.5"/><rect x="13.5" y="13.5" width="7" height="7" rx="1.5"/></svg>',
+  spark:'<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M12 3l2.2 5.8L20 11l-5.8 2.2L12 19l-2.2-5.8L4 11l5.8-2.2z"/><path d="M19 17l.8 2.2L22 20l-2.2.8L19 23l-.8-2.2L16 20l2.2-.8z" stroke-width="1.4"/></svg>',
+  user:'<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21c1-4.5 4-6 8-6s7 1.5 8 6"/></svg>',
+  search:'<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg>',
+  play:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"><path d="M7 4l13 8-13 8z"/></svg>',
+  playf:'<svg width="16" height="16" viewBox="0 0 24 24" fill="#fff"><path d="M8 5l12 7-12 7z"/></svg>',
+  close:'<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M5 5l14 14M19 5L5 19"/></svg>',
+  back:'<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg>',
+  share:'<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15V3M7 8l5-5 5 5M5 12v8h14v-8"/></svg>',
+  plus:'<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 4v16M4 12h16"/></svg>',
+  check:'<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12l5 5L20 6"/></svg>'
+};
+const LOGO = `<a class="logo" href="#/home"><i>${I.playf}</i><b>Flix Anime</b></a>`;
+
+/* ================= Router ================= */
+const view = $('#view');
+function setView(html){ view.innerHTML=html; window.scrollTo(0,0); return view; }
+function clearTimers(){ timers.forEach(clearInterval); timers=[]; }
+function tabbar(active){
+  const t=[['home','Trang chủ',I.home],['lists','Danh sách',I.mark],['browse','Duyệt',I.grid],['new','Mới',I.spark],['account','Tài khoản',I.user]];
+  $('#tabin').innerHTML=t.map(([k,n,ic])=>`<a href="#/${k}" class="${k===active?'on':''}">${ic}<span>${n}</span></a>`).join('');
+}
+function route(){
+  nav++; clearTimers();
+  const h=(location.hash||'#/home').replace(/^#\/?/,''), p=h.split('/').map(decodeURIComponent), r=p[0]||'home';
+  const noNav=['title','watch'].includes(r);
+  document.body.classList.toggle('nonav',noNav);
+  if(!noNav) tabbar(['home','lists','browse','new','account'].includes(r)?r:(r==='search'?'':(r==='genre'||r==='year'||r==='years'?'browse':'home')));
+  const tok=nav;
+  ({home:vHome,lists:vLists,browse:vBrowse,new:vNew,account:vAccount,search:vSearch,
+    title:()=>vTitle(p[1],p[2],tok),watch:()=>vWatch(p[1],p[2],+p[3]||0,+p[4]||0,tok),
+    genre:()=>vGenre(p[1]),year:()=>vYear(p[1]),years:vYears}[r]||vHome)(tok);
+}
+addEventListener('hashchange',route);
+addEventListener('error',e=>{
+  const t=e.target;
+  if(t&&t.tagName==='IMG'){ if(t.dataset.alt&&!t.dataset.t){t.dataset.t=1;t.src=t.dataset.alt}else t.style.visibility='hidden'; }
+},true);
+
+/* ================= Thành phần ================= */
+const sub = it=>[it.ep,it.lang].filter(Boolean).join(' | ')||(it.year||'');
+const card = it=>`<a class="card" href="#/title/${it.src}/${encodeURIComponent(it.slug)}">
+  <div class="pic"><img loading="lazy" src="${esc(it.thumb)}" data-alt="${esc(it.poster)}" alt="">${it.quality?`<span class="badge">${esc(it.quality)}</span>`:''}</div>
+  <div class="ct">${esc(it.name)}</div><div class="cs">${esc(sub(it))}</div></a>`;
+const rowHtml=(title,items)=>items.length?`<section class="row"><h3>${esc(title)}</h3><div class="scroller">${items.map(card).join('')}</div></section>`:'';
+const loading='<div class="load"><div class="spin"></div></div>';
+
+function grid(el,loader){
+  let page=1,done=false,busy=false;
+  el.innerHTML='<div class="gr"></div><div class="more"></div>';
+  const g=$('.gr',el), m=$('.more',el);
+  async function load(){
+    if(busy||done) return; busy=true; m.innerHTML='<div class="spin"></div>';
+    try{
+      const items=await loader(page);
+      if(!(items.raw??items.length)) done=true; else { g.insertAdjacentHTML('beforeend',items.map(card).join('')); page++; }
+      m.innerHTML=done?'':'<button class="btn ghost" id="mb">Xem thêm</button>';
+      if(!g.children.length) m.innerHTML='<p class="empty-s">Không có kết quả</p>';
+    }catch(e){ m.innerHTML='<p class="empty-s">Không tải được dữ liệu ('+esc(e.message)+')</p><button class="btn ghost" id="mb">Thử lại</button>'; }
+    busy=false; const b=$('#mb',m); if(b) b.onclick=load;
+  }
+  load();
+}
+
+/* ================= Trang chủ ================= */
+async function vHome(tok){
+  setView(`<div class="hero" id="hero"><div class="top">${LOGO}<div style="display:flex;gap:6px;align-items:center"><a class="chip" href="#/account">${SRC_NAME[src]}</a><a class="ib" href="#/search">${I.search}</a></div></div></div><div id="rows"></div>`);
+  const rows=$('#rows');
+  // Tiếp tục xem
+  const hist=getHist();
+  if(hist.length) rows.innerHTML+=rowHtml('Tiếp tục xem',hist.slice(0,12).map(h=>({...h,ep:h.epName?'Tập '+h.epName.replace(/^Tập\s*/i,''):''})));
+  const defs=[['Anime thịnh hành',{}],['Mới cập nhật',{kind:'new'}],...GENRES.slice(0,5).map(([s,n])=>['Anime '+n.toLowerCase(),{cat:s}])];
+  const slots=defs.map(()=>{const d=document.createElement('div');rows.appendChild(d);return d});
+  let heroItems=[];
+  defs.forEach(async([title,opt],i)=>{
+    try{
+      const items=await fetchList(opt); if(tok!==nav) return;
+      slots[i].outerHTML=rowHtml(title,items);
+      if(i===0){ heroItems=items.slice(0,6); startHero(heroItems,tok); }
+    }catch(e){ if(i===0&&tok===nav) $('#hero').insertAdjacentHTML('beforeend',`<div class="info"><h2>Không tải được dữ liệu</h2><p class="clamp">${esc(e.message)} — thử đổi nguồn ở tab Tài khoản.</p></div>`); }
+  });
+}
+function startHero(items,tok){
+  const hero=$('#hero'); if(!hero||!items.length) return;
+  let cur=0;
+  const wide=()=>matchMedia('(min-width:760px)').matches;
+  hero.insertAdjacentHTML('beforeend','<div class="bg"></div><div class="info"></div>');
+  const bg=$('.bg',hero), info=$('.info',hero);
+  function draw(i){
+    cur=i; const it=items[i];
+    bg.style.backgroundImage=`url("${wide()?it.poster:it.thumb}"),url("${it.poster||it.thumb}")`;
+    const saved=inList(it.src,it.slug);
+    info.innerHTML=`<h2>${esc(it.name)}</h2>
+      <div class="meta">${it.quality?`<span class="tag">${esc(it.quality)}</span>`:''}<span>${esc(sub(it))}</span>${it.year?`<span>• ${esc(it.year)}</span>`:''}${it.cats?`<span>• ${esc(it.cats.slice(0,4).join(', '))}</span>`:''}</div>
+      <p class="clamp">${esc(it.desc||it.origin||'')}</p>
+      <div class="cta"><a class="btn pri" href="#/watch/${it.src}/${encodeURIComponent(it.slug)}/0/0">${I.play} Xem ngay</a>
+      <button class="btn sq ${saved?'on':''}" id="hsave" aria-label="Lưu">${saved?I.markf:I.mark}</button></div>
+      <div class="dots">${items.map((_,k)=>`<button data-i="${k}" class="${k===i?'on':''}" aria-label="Phim ${k+1}"></button>`).join('')}</div>`;
+    $('#hsave').onclick=()=>{toggleList(it);draw(cur)};
+    $$('.dots button',info).forEach(b=>b.onclick=()=>{draw(+b.dataset.i);restart()});
+  }
+  draw(0);
+  let tm; const restart=()=>{clearInterval(tm);tm=setInterval(()=>{ if(tok!==nav)return clearInterval(tm); draw((cur+1)%items.length)},6000);timers.push(tm)};
+  restart();
+  // nạp mô tả chi tiết cho các phim ở hero
+  items.forEach(async(it,i)=>{
+    try{ const d=await getDetail(it.slug,it.src); it.desc=d.desc; it.cats=d.cats; if(tok===nav&&cur===i){ $('.clamp',info).textContent=d.desc; } }catch{}
+  });
+}
+
+/* ================= Tìm kiếm ================= */
+function vSearch(tok){
+  setView(`<div class="sbox"><label>${I.search}<input id="q" placeholder="Bạn muốn xem gì?" autocomplete="off" enterkeyhint="search"></label><a href="#/home">Huỷ</a></div><div id="res"></div>`);
+  const q=$('#q'), res=$('#res'); q.focus();
+  const suggest=async()=>{ try{ const it=await fetchList({}); if(tok===nav&&!q.value) res.innerHTML=rowHtml('Gợi ý cho bạn',it.slice(0,12)); }catch{} };
+  suggest();
+  let t;
+  q.oninput=()=>{
+    clearTimeout(t); const v=q.value.trim();
+    if(!v){ suggest(); return; }
+    t=setTimeout(async()=>{
+      res.innerHTML=loading;
+      try{
+        const items=await fetchSearch(v); if(tok!==nav||q.value.trim()!==v) return;
+        res.innerHTML=`<div class="tabs"><button class="on">Kết quả hàng đầu</button></div>`+
+          (items.length?items.map(it=>`<a class="lr" href="#/title/${it.src}/${encodeURIComponent(it.slug)}"><div class="th"><img src="${esc(it.poster)}" data-alt="${esc(it.thumb)}" alt=""></div><div class="tx"><b>${esc(it.name)}</b><span>${esc([it.ep,it.year,it.lang].filter(Boolean).join(' • '))}</span></div></a>`).join(''):'<p class="empty-s">Không tìm thấy kết quả</p>');
+      }catch(e){ res.innerHTML=`<p class="empty-s">Lỗi tìm kiếm: ${esc(e.message)}</p>`; }
+    },380);
+  };
+}
+
+/* ================= Duyệt / Mới / Thể loại / Năm ================= */
+function vBrowse(){
+  setView(`<div class="bar"><span class="sp"></span><h1>Duyệt</h1><a class="ib" href="#/search">${I.search}</a></div>
+  <div class="chips" id="chips"><button class="pill on" data-c="">Tất cả</button>${GENRES.map(([s,n])=>`<button class="pill" data-c="${s}">${n}</button>`).join('')}</div><div id="g"></div>`);
+  const run=c=>grid($('#g'),p=>fetchList({page:p,cat:c||undefined}));
+  run('');
+  $$('#chips .pill').forEach(b=>b.onclick=()=>{$$('#chips .pill').forEach(x=>x.classList.remove('on'));b.classList.add('on');run(b.dataset.c)});
+}
+function vNew(){
+  setView(`<div class="bar"><span class="sp"></span><h1>Mới cập nhật</h1><a class="ib" href="#/years" aria-label="Năm phát hành">${I.spark}</a></div><div id="g"></div>`);
+  grid($('#g'),p=>fetchList({page:p,kind:'new'}));
+}
+function vGenre(slug){
+  const n=(GENRES.find(g=>g[0]===slug)||[0,slug])[1];
+  setView(`<div class="bar"><a class="ib" href="#/browse">${I.back}</a><h1>${esc(n)}</h1><span class="ib"></span></div><div id="g"></div>`);
+  grid($('#g'),p=>fetchList({page:p,cat:slug}));
+}
+function vYear(y){
+  setView(`<div class="bar"><a class="ib" href="#/years">${I.back}</a><h1>Anime ${esc(y)}</h1><span class="ib"></span></div><div id="g"></div>`);
+  grid($('#g'),p=>fetchList({page:p,year:y}));
+}
+function vYears(){
+  const y=new Date().getFullYear(), arr=[]; for(let i=y;i>=y-14;i--) arr.push(i);
+  setView(`<div class="bar"><a class="ib" href="#/new">${I.close}</a><h1>Năm phát hành</h1><span class="ib"></span></div>${arr.map(i=>`<a class="year" href="#/year/${i}">${i}</a>`).join('')}`);
+}
+
+/* ================= Danh sách của tôi ================= */
+function vLists(){
+  let tab=store.get('fa_tab','list');
+  const draw=()=>{
+    const l=tab==='list'?getList():getHist();
+    setView(`<div class="bar"><span class="sp"></span><h1>Danh sách của tôi</h1><a class="ib" href="#/search">${I.search}</a></div>
+      <div class="tabs"><button data-t="list" class="${tab==='list'?'on':''}">Yêu thích</button><button data-t="hist" class="${tab==='hist'?'on':''}">Lịch sử</button></div>
+      ${l.length?l.map(it=>`<a class="lr p" href="#/title/${it.src}/${encodeURIComponent(it.slug)}"><div class="th"><img src="${esc(it.thumb)}" data-alt="${esc(it.poster)}" alt=""></div><div class="tx"><b>${esc(it.name)}</b><span>${esc(tab==='hist'&&it.epName?'Đang xem tập '+it.epName:sub(it))}</span></div></a>`).join(''):
+      `<div class="empty"><svg width="150" height="150" viewBox="0 0 150 150"><defs><linearGradient id="eg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#0a7aff"/><stop offset="1" stop-color="#002290"/></linearGradient></defs><circle cx="75" cy="75" r="60" fill="url(#eg)" opacity=".18"/><circle cx="75" cy="75" r="42" fill="url(#eg)"/><path d="M64 54l32 21-32 21z" fill="#fff"/><circle cx="118" cy="38" r="5" fill="none" stroke="#5aa8ff" stroke-width="2"/><circle cx="28" cy="104" r="4" fill="#0a7aff"/></svg>
+      <h3>${tab==='list'?'Danh sách của bạn còn trống.':'Bạn chưa xem gì cả.'}</h3><p>${tab==='list'?'Hãy thêm vài bộ anime thật hay vào đây nhé!':'Bắt đầu xem để lưu lịch sử tại đây.'}</p><a class="btn pri" href="#/browse">Duyệt tất cả</a></div>`}`);
+    $$('.tabs button').forEach(b=>b.onclick=()=>{tab=b.dataset.t;store.set('fa_tab',tab);draw()});
+  };
+  draw();
+}
+
+/* ================= Tài khoản ================= */
+function vAccount(){
+  const draw=()=>{
+    setView(`<div class="bar"><span class="sp"></span><h1>Tài khoản</h1><span class="ib"></span></div>
+    <div class="avatar">F</div><p style="text-align:center;font-weight:900;font-size:18px">Flix Anime</p>
+    <p style="text-align:center;color:var(--m);font-size:13px;margin:4px 0 18px">Xem anime miễn phí · Dữ liệu lưu trên thiết bị</p>
+    <div class="sec">Nguồn phim</div>
+    <div class="seg"><button data-s="kk" class="${src==='kk'?'on':''}">KKPhim</button><button data-s="nc" class="${src==='nc'?'on':''}">NguonC</button></div>
+    <div class="list" style="margin-top:12px">
+      <button class="i" id="ch"><span>Xoá lịch sử xem</span><small>${getHist().length} mục</small></button>
+      <button class="i" id="cl"><span>Xoá danh sách yêu thích</span><small>${getList().length} mục</small></button>
+      <a class="i" href="#/years"><span>Năm phát hành</span><small>›</small></a>
+    </div>`);
+    $$('.seg button').forEach(b=>b.onclick=()=>{src=b.dataset.s;store.set('fa_src',src);cache.clear();toast('Đã chuyển sang '+SRC_NAME[src]);draw()});
+    $('#ch').onclick=()=>{store.set('fa_hist',[]);toast('Đã xoá lịch sử');draw()};
+    $('#cl').onclick=()=>{store.set('fa_list',[]);toast('Đã xoá danh sách');draw()};
+  };
+  draw();
+}
+
+/* ================= Chi tiết phim ================= */
+const epLabel=n=>/^\d+(\.\d+)?$/.test(String(n).trim())?'Tập '+String(n).trim():String(n);
+async function vTitle(s,slug,tok){
+  setView(`<div class="bar"><a class="ib" href="javascript:history.back()">${I.close}</a><span class="sp"></span></div>${loading}`);
+  let d; try{ d=await getDetail(slug,s); }catch(e){ if(tok!==nav)return; setView(`<div class="bar"><a class="ib" href="#/home">${I.close}</a><span class="sp"></span></div><p class="empty-s">Không tải được phim (${esc(e.message)}).<br>Thử đổi nguồn ở tab Tài khoản.</p>`); return; }
+  if(tok!==nav) return;
+  let si=0, tab='eps';
+  const hist=getHist().find(h=>h.src===s&&h.slug===d.slug);
+  const draw=()=>{
+    const saved=inList(s,d.slug), sv=d.servers[si];
+    const resume=hist?`Xem tiếp tập ${hist.epName||1}`:'Xem ngay';
+    const first=hist?`#/watch/${s}/${encodeURIComponent(d.slug)}/${hist.sv||0}/${hist.ep||0}`:`#/watch/${s}/${encodeURIComponent(d.slug)}/0/0`;
+    setView(`<div class="dpad"><div class="dhead"><div class="bg" style="background-image:url('${esc(d.poster||d.thumb)}')"></div><div class="tp"><a class="ib" href="javascript:history.back()">${I.close}</a><a class="ib" href="#/search">${I.search}</a></div></div>
+    <div class="dtitle"><h1>${esc(d.name)}</h1>${d.origin?`<small>${esc(d.origin)}</small>`:''}</div>
+    <div class="meta dmeta">${d.quality?`<span class="tag">${esc(d.quality)}</span>`:''}${d.lang?`<span>• ${esc(d.lang)}</span>`:''}${d.year?`<span>• ${esc(d.year)}</span>`:''}${d.time?`<span>• ${esc(d.time)}</span>`:''}${d.cats.length?`<span>• ${esc(d.cats.slice(0,4).join(', '))}</span>`:''}</div>
+    <div class="acts"><button id="a1">${saved?I.check:I.plus}<span>Danh sách</span></button><button id="a2">${I.share}<span>Chia sẻ</span></button></div>
+    <p class="desc cl" id="ds">${esc(d.desc||'Chưa có mô tả.')}</p>
+    <button class="link" id="more">Chi tiết hơn</button>
+    <div class="tabs"><button data-t="eps" class="${tab==='eps'?'on':''}">Tập phim</button><button data-t="sim" class="${tab==='sim'?'on':''}">Có thể bạn thích</button></div>
+    <div id="tc"></div></div>
+    <div class="stick"><div class="in"><a class="btn pri" href="${first}">${I.play} ${resume}</a><button class="btn sq ${saved?'on':''}" id="a3">${saved?I.markf:I.mark}</button></div></div>`);
+    $('#more').onclick=()=>{const e=$('#ds');e.classList.toggle('cl');$('#more').textContent=e.classList.contains('cl')?'Chi tiết hơn':'Thu gọn';
+      if(!e.classList.contains('cl')&&!$('#ex')) e.insertAdjacentHTML('afterend',`<div class="desc" id="ex" style="margin-top:10px;color:var(--m)">${d.actors?'Diễn viên: '+esc(d.actors)+'<br>':''}${d.country?'Quốc gia: '+esc(d.country)+'<br>':''}${d.total?'Số tập: '+esc(d.total)+'<br>':''}${d.status?'Trạng thái: '+esc(d.status):''}</div>`);};
+    $('#a1').onclick=$('#a3').onclick=()=>{toggleList(d);draw()};
+    $('#a2').onclick=async()=>{const url=location.href;try{ if(navigator.share) await navigator.share({title:d.name+' · Flix Anime',url}); else {await navigator.clipboard.writeText(url);toast('Đã sao chép liên kết');} }catch{}};
+    $$('.tabs button').forEach(b=>b.onclick=()=>{tab=b.dataset.t;draw()});
+    const tc=$('#tc');
+    if(tab==='eps'){
+      if(!d.servers.length) tc.innerHTML='<p class="empty-s">Chưa có tập phim.</p>';
+      else tc.innerHTML=(d.servers.length>1?`<select class="sel" id="svs">${d.servers.map((x,i)=>`<option value="${i}" ${i===si?'selected':''}>${esc(x.name)}</option>`).join('')}</select>`:'')+
+        sv.eps.map((e,i)=>`<a class="lr" href="#/watch/${s}/${encodeURIComponent(d.slug)}/${si}/${i}"><div class="th"><img src="${esc(d.poster||d.thumb)}" alt=""><div class="playi"><i>${I.playf}</i></div></div><div class="tx"><b>${esc(epLabel(e.name))}</b><span>${esc(d.lang||sv.name)}</span></div></a>`).join('');
+      const sel=$('#svs'); if(sel) sel.onchange=()=>{si=+sel.value;draw()};
+    } else {
+      tc.innerHTML=loading;
+      (async()=>{ try{ const items=(await fetchList(d.cats.length&&s===src?{}:{})).filter(x=>x.slug!==d.slug); tc.innerHTML=`<div class="gr">${items.slice(0,18).map(card).join('')}</div>`; }catch{ tc.innerHTML='<p class="empty-s">Không tải được gợi ý</p>'; } })();
+    }
+  };
+  draw();
+}
+
+/* ================= Trình phát ================= */
+let hlsInst=null;
+function killPlayer(){ if(hlsInst){try{hlsInst.destroy()}catch{} hlsInst=null} }
+async function vWatch(s,slug,si,ei,tok){
+  killPlayer();
+  setView(`<div class="bar"><a class="ib" href="javascript:history.back()">${I.back}</a><span class="sp"></span></div>${loading}`);
+  let d; try{ d=await getDetail(slug,s); }catch(e){ if(tok!==nav)return; setView(`<div class="bar"><a class="ib" href="#/home">${I.back}</a><span class="sp"></span></div><p class="empty-s">Không tải được phim (${esc(e.message)})</p>`); return; }
+  if(tok!==nav) return;
+  const sv=d.servers[si]||d.servers[0];
+  if(!sv){ setView(`<div class="bar"><a class="ib" href="#/title/${s}/${encodeURIComponent(slug)}">${I.back}</a><span class="sp"></span></div><p class="empty-s">Phim chưa có tập nào.</p>`); return; }
+  const idx=sv.eps[ei]?ei:0, ep=sv.eps[idx], svi=d.servers.indexOf(sv);
+  pushHist(d,svi,idx,ep.name);
+  let mode=store.get('fa_mode','hls');
+  const next=sv.eps[idx+1];
+  const link=(a,b)=>`#/watch/${s}/${encodeURIComponent(d.slug)}/${a}/${b}`;
+  setView(`<div class="pbox" id="pbox"></div>
+    <div class="wtitle"><small>${esc(d.name)}</small><h2>${esc(epLabel(ep.name))}</h2></div>
+    <div class="chips" style="padding-top:12px">
+      ${ep.m3u8?`<button class="pill ${mode==='hls'?'on':''}" data-m="hls">Trình phát HLS</button>`:''}
+      ${ep.embed?`<button class="pill ${mode==='embed'||!ep.m3u8?'on':''}" data-m="embed">Trình phát nhúng</button>`:''}
+      ${d.servers.map((x,i)=>`<a class="pill ${i===svi?'on':''}" href="${link(i,Math.min(idx,x.eps.length-1))}">${esc(x.name)}</a>`).join('')}
+    </div>
+    <p class="desc cl">${esc(d.desc)}</p>
+    ${next?`<div class="sec">Tập tiếp theo</div><a class="lr" href="${link(svi,idx+1)}"><div class="th"><img src="${esc(d.poster||d.thumb)}" alt=""><div class="playi"><i>${I.playf}</i></div></div><div class="tx"><b>${esc(epLabel(next.name))}</b><span>${esc(d.name)}</span></div></a>`:''}
+    <div class="sec">Tất cả các tập <a class="link" style="padding:0" href="#/title/${s}/${encodeURIComponent(d.slug)}">Chi tiết</a></div>
+    <div class="epgrid">${sv.eps.map((e,i)=>`<a class="${i===idx?'on':''}" href="${link(svi,i)}">${esc(String(e.name).replace(/^Tập\s*/i,''))}</a>`).join('')}</div>`);
+  const box=$('#pbox');
+  function play(m){
+    killPlayer(); box.innerHTML='';
+    const useEmbed=()=>{ if(!ep.embed){toast('Không có nguồn phát khả dụng');return false} box.innerHTML=`<iframe src="${esc(ep.embed)}" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen referrerpolicy="no-referrer"></iframe>`; return true; };
+    if(m==='embed'||!ep.m3u8){ useEmbed(); return; }
+    const v=document.createElement('video'); v.controls=true; v.autoplay=true; v.playsInline=true; box.appendChild(v);
+    const fail=()=>{ toast('HLS lỗi, chuyển sang trình phát nhúng'); killPlayer(); if(!useEmbed()) return; };
+    if(window.Hls&&Hls.isSupported()){
+      hlsInst=new Hls({maxBufferLength:30}); hlsInst.loadSource(ep.m3u8); hlsInst.attachMedia(v);
+      hlsInst.on(Hls.Events.ERROR,(_,e)=>{ if(e.fatal) fail(); });
+      hlsInst.on(Hls.Events.MANIFEST_PARSED,()=>v.play().catch(()=>{}));
+    } else if(v.canPlayType('application/vnd.apple.mpegurl')){
+      v.src=ep.m3u8; v.onerror=fail;
+    } else fail();
+    v.onended=()=>{ if(next) location.hash=link(svi,idx+1); };
+  }
+  play(mode);
+  $$('[data-m]').forEach(b=>b.onclick=()=>{mode=b.dataset.m;store.set('fa_mode',mode);$$('[data-m]').forEach(x=>x.classList.toggle('on',x===b));play(mode)});
+}
+
+route();
+</script>
+</body>
+</html>
