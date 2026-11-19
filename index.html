@@ -2,7 +2,7 @@
 <html lang="vi">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <meta name="theme-color" content="#000000">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -24,12 +24,16 @@
 }
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 html,body{background:var(--bg);color:var(--t);font-family:Lato,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
-body{min-height:100vh;padding-bottom:calc(var(--nav) + env(safe-area-inset-bottom))}
-body.nonav{padding-bottom:0}
+html,body{height:100%;overflow:hidden;overscroll-behavior:none;touch-action:manipulation;-webkit-text-size-adjust:100%;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+input,textarea{-webkit-user-select:text;user-select:text}
+img{-webkit-user-drag:none;user-drag:none}
+/* Khung app cố định: chỉ vùng nội dung cuộn, thanh tab luôn đứng yên */
+#app{position:fixed;inset:0;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;overscroll-behavior:contain}
+#view{max-width:980px;margin:0 auto;min-height:100%;position:relative;padding-bottom:calc(var(--nav) + env(safe-area-inset-bottom))}
+body.nonav #view{padding-bottom:0}
 a{color:inherit;text-decoration:none}
 button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
 svg{display:block}
-#app{max-width:980px;margin:0 auto;min-height:100vh;position:relative}
 .hide{display:none!important}
 .av{border-radius:50%;object-fit:cover;background:var(--grad);display:grid;place-items:center;font-weight:900;color:#fff;flex:0 0 auto}
 .prof{text-align:center;padding:22px 16px 6px}
@@ -46,7 +50,7 @@ svg{display:block}
 .stats span{font-size:12.5px;color:var(--m)}
 .auth{padding:18px 16px 40px;max-width:440px;margin:0 auto}
 .auth label{display:block;font-size:13px;color:var(--m);font-weight:700;margin-bottom:14px}
-.auth input,.sheet input[type=text]{display:block;width:100%;margin-top:6px;height:46px;border-radius:8px;border:1px solid var(--line);background:var(--s2);color:#fff;font:inherit;font-size:15px;padding:0 12px;outline:0}
+.auth input,.sheet input[type=text]{display:block;width:100%;margin-top:6px;height:46px;border-radius:8px;border:1px solid var(--line);background:var(--s2);color:#fff;font:inherit;font-size:16px;padding:0 12px;outline:0}
 .auth input:focus,.sheet input[type=text]:focus{border-color:var(--b)}
 .auth .note{font-size:12.5px;color:var(--m);line-height:1.5;margin-bottom:16px;background:var(--s1);border-radius:8px;padding:10px 12px}
 .auth .err{color:#ff6b6b;font-size:13px;min-height:18px;margin-bottom:8px}
@@ -137,7 +141,7 @@ svg{display:block}
 /* search */
 .sbox{display:flex;gap:10px;align-items:center;padding:calc(10px + env(safe-area-inset-top)) 16px 10px;position:sticky;top:0;background:#000;z-index:20}
 .sbox label{flex:1;display:flex;align-items:center;gap:8px;background:var(--s2);border-radius:8px;padding:0 12px;height:42px}
-.sbox input{flex:1;background:none;border:0;outline:0;color:#fff;font:inherit;font-size:15px;min-width:0}
+.sbox input{flex:1;background:none;border:0;outline:0;color:#fff;font:inherit;font-size:16px;min-width:0}
 .sbox a{font-size:14px}
 
 /* detail */
@@ -414,7 +418,7 @@ const LOGO = `<a class="logo" href="#/home"><i>${I.playf}</i><b>Flix Anime</b></
 
 /* ================= Router ================= */
 const view = $('#view');
-function setView(html){ view.innerHTML=html; window.scrollTo(0,0); return view; }
+function setView(html){ view.innerHTML=html; $('#app').scrollTop=0; return view; }
 function clearTimers(){ timers.forEach(clearInterval); timers=[]; }
 function tabbar(active){
   const t=[['home','Trang chủ',I.home],['search','Tìm kiếm',I.search],['browse','Duyệt',I.grid],['new','Mới',I.spark],['account','Tài khoản',I.user]];
@@ -840,6 +844,7 @@ async function vWatch(s,slug,si,ei,tok){
   play(mode);
 }
 
+['gesturestart','gesturechange','gestureend'].forEach(t=>document.addEventListener(t,e=>e.preventDefault()));
 route();
 </script>
 </body>
