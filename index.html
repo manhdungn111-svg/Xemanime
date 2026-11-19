@@ -31,6 +31,29 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
 svg{display:block}
 #app{max-width:980px;margin:0 auto;min-height:100vh;position:relative}
 .hide{display:none!important}
+.av{border-radius:50%;object-fit:cover;background:var(--grad);display:grid;place-items:center;font-weight:900;color:#fff;flex:0 0 auto}
+.prof{text-align:center;padding:22px 16px 6px}
+.avwrap{position:relative;display:inline-block;margin:0 auto}
+.avwrap .cam{position:absolute;right:-2px;bottom:-2px;width:30px;height:30px;border-radius:50%;background:var(--b);border:3px solid #000;display:grid;place-items:center;font-style:normal}
+.prof h2{font-size:21px;font-weight:900;margin-top:12px}
+.prof p{color:var(--m);font-size:13px;margin-top:4px}
+.prow{display:flex;gap:10px;justify-content:center;margin-top:14px}
+.prow .btn{height:40px;font-size:14px;min-width:120px}
+.stats{display:flex;margin:18px 16px 0;background:var(--s1);border:1px solid var(--line);border-radius:12px}
+.stats a{flex:1;text-align:center;padding:14px 0}
+.stats a+a{border-left:1px solid var(--line)}
+.stats b{display:block;font-size:22px;color:var(--b)}
+.stats span{font-size:12.5px;color:var(--m)}
+.auth{padding:18px 16px 40px;max-width:440px;margin:0 auto}
+.auth label{display:block;font-size:13px;color:var(--m);font-weight:700;margin-bottom:14px}
+.auth input,.sheet input[type=text]{display:block;width:100%;margin-top:6px;height:46px;border-radius:8px;border:1px solid var(--line);background:var(--s2);color:#fff;font:inherit;font-size:15px;padding:0 12px;outline:0}
+.auth input:focus,.sheet input[type=text]:focus{border-color:var(--b)}
+.auth .note{font-size:12.5px;color:var(--m);line-height:1.5;margin-bottom:16px;background:var(--s1);border-radius:8px;padding:10px 12px}
+.auth .err{color:#ff6b6b;font-size:13px;min-height:18px;margin-bottom:8px}
+.auth .alt{text-align:center;font-size:14px;color:var(--m);margin-top:18px}
+.auth .alt a{color:var(--b);font-weight:700}
+.rmv{margin-left:auto;color:var(--m)}
+.list .i.danger{color:#ff6b6b}
 .inst{display:flex;align-items:center;gap:12px;margin:14px 16px 0;padding:12px;background:var(--s1);border:1px solid var(--line);border-radius:12px}
 .inst img{width:42px;height:42px;border-radius:10px}
 .inst div{flex:1;font-size:13px;line-height:1.3}.inst b{display:block;font-size:14px}
@@ -227,10 +250,12 @@ const KK  = 'https://phimapi.com';          // KKPhim
 const NC  = 'https://phim.nguonc.com';      // NguonC
 const KKIMG = 'https://phimimg.com/';
 const SRC_NAME = {kk:'KKPhim', nc:'NguonC'};
+const TYPES = [['phim-bo','Phim bộ'],['phim-le','Phim lẻ'],['hoat-hinh','Hoạt hình'],['tv-shows','TV Shows']];
 const GENRES = [
-  ['hanh-dong','Hành động'],['phieu-luu','Phiêu lưu'],['hai-huoc','Hài hước'],['tinh-cam','Tình cảm'],
-  ['vien-tuong','Viễn tưởng'],['hoc-duong','Học đường'],['kinh-di','Kinh dị'],['the-thao','Thể thao'],
-  ['am-nhac','Âm nhạc'],['than-thoai','Thần thoại'],['tam-ly','Tâm lý'],['khoa-hoc','Khoa học']
+  ['hanh-dong','Hành động'],['tinh-cam','Tình cảm'],['hai-huoc','Hài hước'],['co-trang','Cổ trang'],
+  ['tam-ly','Tâm lý'],['hinh-su','Hình sự'],['chien-tranh','Chiến tranh'],['the-thao','Thể thao'],
+  ['vo-thuat','Võ thuật'],['vien-tuong','Viễn tưởng'],['phieu-luu','Phiêu lưu'],['khoa-hoc','Khoa học'],
+  ['kinh-di','Kinh dị'],['am-nhac','Âm nhạc'],['than-thoai','Thần thoại'],['hoc-duong','Học đường']
 ];
 
 /* ================= Tiện ích ================= */
@@ -243,6 +268,22 @@ const store = {
   set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch{}}
 };
 let src = store.get('fa_src','kk');
+/* --- Tài khoản (lưu trên thiết bị) --- */
+const users = ()=>store.get('fa_users',{});
+const sess = ()=>store.get('fa_session',null);
+const me = ()=>{ const n=sess(), u=n&&users()[n]; return u?{...u,name:n}:null; };
+const K = k=>sess()?`fa_u:${sess()}:${k}`:`fa_${k}`;
+async function hashPw(pw,saltB64){
+  if(!(window.crypto&&crypto.subtle)) throw new Error('Trình duyệt không hỗ trợ mã hoá (cần https)');
+  const b64=a=>btoa(String.fromCharCode(...new Uint8Array(a)));
+  const salt=saltB64?Uint8Array.from(atob(saltB64),c=>c.charCodeAt(0)):crypto.getRandomValues(new Uint8Array(16));
+  const key=await crypto.subtle.importKey('raw',new TextEncoder().encode(pw),'PBKDF2',false,['deriveBits']);
+  const bits=await crypto.subtle.deriveBits({name:'PBKDF2',salt,iterations:100000,hash:'SHA-256'},key,256);
+  return {salt:b64(salt),hash:b64(bits)};
+}
+const avatar=(sz,u=me())=>u&&u.avatar
+  ?`<img class="av" style="width:${sz}px;height:${sz}px" src="${u.avatar}" alt="">`
+  :`<span class="av" style="width:${sz}px;height:${sz}px;font-size:${Math.round(sz*.42)}px">${esc(((u?(u.display||u.name):'K')||'K').trim().charAt(0).toUpperCase()||'K')}</span>`;
 let nav = 0;               // token chống render trễ
 let timers = [];
 const cache = new Map();
@@ -263,23 +304,22 @@ const img = u => !u ? '' : /^(https?:)?\/\//.test(u) ? u : KKIMG+String(u).repla
 /* ================= API (KKPhim + NguonC) ================= */
 const API = {
   kk:{
-    list({page=1,cat,year,kind}={}){
-      let u=`${KK}/v1/api/danh-sach/hoat-hinh?page=${page}&limit=24&sort_field=${kind==='new'?'_id':'modified.time'}&sort_type=desc`;
-      if(cat) u+=`&category=${cat}`;
-      if(year) u+=`&year=${year}`;
-      return jget(u);
+    list({page=1,type,cat,year}={}){
+      const q=`page=${page}&limit=24&sort_field=modified.time&sort_type=desc`;
+      if(type){ let u=`${KK}/v1/api/danh-sach/${type}?${q}`; if(cat)u+=`&category=${cat}`; if(year)u+=`&year=${year}`; return jget(u); }
+      if(cat)  return jget(`${KK}/v1/api/the-loai/${cat}?${q}${year?`&year=${year}`:''}`);
+      if(year) return jget(`${KK}/v1/api/nam/${year}?${q}`);
+      return jget(`${KK}/danh-sach/phim-moi-cap-nhat-v3?page=${page}`);
     },
-    search:q=>jget(`${KK}/v1/api/tim-kiem?keyword=${encodeURIComponent(q)}&limit=24&category=hoat-hinh`),
+    search:q=>jget(`${KK}/v1/api/tim-kiem?keyword=${encodeURIComponent(q)}&limit=24`),
     detail:s=>jget(`${KK}/phim/${encodeURIComponent(s)}`)
   },
   nc:{
-    list({page=1,cat,year,kind}={}){
-      let u;
-      if(cat) u=`${NC}/api/films/the-loai/${cat}?page=${page}`;
-      else if(year) u=`${NC}/api/films/nam-phat-hanh/${year}?page=${page}`;
-      else if(kind==='new') u=`${NC}/api/films/phim-moi-cap-nhat?page=${page}`;
-      else u=`${NC}/api/films/danh-sach/hoat-hinh?page=${page}`;
-      return jget(u);
+    list({page=1,type,cat,year}={}){
+      if(type) return jget(`${NC}/api/films/danh-sach/${type}?page=${page}`);
+      if(cat)  return jget(`${NC}/api/films/the-loai/${cat}?page=${page}`);
+      if(year) return jget(`${NC}/api/films/nam-phat-hanh/${year}?page=${page}`);
+      return jget(`${NC}/api/films/phim-moi-cap-nhat?page=${page}`);
     },
     search:q=>jget(`${NC}/api/films/search?keyword=${encodeURIComponent(q)}`),
     detail:s=>jget(`${NC}/api/film/${encodeURIComponent(s)}`)
@@ -297,25 +337,14 @@ function norm(it,s,cdn){
     quality:it.quality||'', desc:strip(it.description||it.content||''), type:it.type||''
   };
 }
-const isAnimeType = t => !t || /hoat|anime/i.test(t);
-const isAnimeCats = a => a.some(c=>/hoạt hình|hoat hinh|anime/i.test(c));
-// Chỉ giữ hoạt hình: KKPhim lọc theo type/category, NguonC kiểm tra thể loại trong trang chi tiết
-async function onlyAnime(items,s,verify){
-  items=items.filter(i=>isAnimeType(i.type));
-  if(s!=='nc'||!verify) return items;
-  const ok=await Promise.allSettled(items.map(i=>getDetail(i.slug,'nc')));
-  return items.filter((_,k)=>ok[k].status==='fulfilled'&&(!ok[k].value.allCats.length||isAnimeCats(ok[k].value.allCats)));
-}
 async function fetchList(opts){
   const s=src, j=await API[s].list(opts);
-  const raw=itemsOf(j).map(i=>norm(i,s,cdnOf(j))).filter(i=>i.slug);
-  const out=await onlyAnime(raw,s,!!(opts.cat||opts.year||opts.kind==='new'));
-  out.raw=raw.length; return out;
+  const out=itemsOf(j).map(i=>norm(i,s,cdnOf(j))).filter(i=>i.slug);
+  out.raw=out.length; return out;
 }
 async function fetchSearch(q){
   const s=src, j=await API[s].search(q);
-  const raw=itemsOf(j).map(i=>norm(i,s,cdnOf(j))).filter(i=>i.slug);
-  return onlyAnime(raw,s,true);
+  return itemsOf(j).map(i=>norm(i,s,cdnOf(j))).filter(i=>i.slug);
 }
 async function getDetail(slug,s){
   const j=await API[s].detail(slug);
@@ -325,7 +354,6 @@ async function getDetail(slug,s){
   if(s==='kk') cats=(m.category||[]).map(c=>c.name);
   else Object.values(m.category||{}).forEach(g=>{ if(/thể loại/i.test(g?.group?.name||'')) (g.list||[]).forEach(x=>cats.push(x.name)) });
   const allCats=s==='kk'?(m.category||[]).map(c=>c.name):Object.values(m.category||{}).flatMap(g=>(g.list||[]).map(x=>x.name));
-  if(m.type&&!isAnimeType(m.type)) allCats.push('__other');
   const eps=j.episodes||m.episodes||[];
   const servers=eps.map(sv=>({
     name:sv.server_name||'Server',
@@ -338,19 +366,19 @@ async function getDetail(slug,s){
 }
 
 /* ================= Dữ liệu cục bộ ================= */
-const getList = ()=>store.get('fa_list',[]);
+const getList = ()=>store.get(K('list'),[]);
 const inList = (s,slug)=>getList().some(x=>x.src===s&&x.slug===slug);
 function toggleList(it){
   let l=getList();
   if(l.some(x=>x.src===it.src&&x.slug===it.slug)){ l=l.filter(x=>!(x.src===it.src&&x.slug===it.slug)); toast('Đã xoá khỏi danh sách'); }
   else { l.unshift({src:it.src,slug:it.slug,name:it.name,thumb:it.thumb,poster:it.poster,year:it.year,ep:it.ep,lang:it.lang}); toast('Đã thêm vào danh sách'); }
-  store.set('fa_list',l);
+  store.set(K('list'),l);
 }
-const getHist = ()=>store.get('fa_hist',[]);
+const getHist = ()=>store.get(K('hist'),[]);
 function pushHist(it,sv,ep,epName){
   let h=getHist().filter(x=>!(x.src===it.src&&x.slug===it.slug));
   h.unshift({src:it.src,slug:it.slug,name:it.name,thumb:it.thumb,poster:it.poster,year:it.year,sv,ep,epName,lang:it.lang});
-  store.set('fa_hist',h.slice(0,60));
+  store.set(K('hist'),h.slice(0,60));
 }
 
 /* ================= Icon ================= */
@@ -389,7 +417,7 @@ const view = $('#view');
 function setView(html){ view.innerHTML=html; window.scrollTo(0,0); return view; }
 function clearTimers(){ timers.forEach(clearInterval); timers=[]; }
 function tabbar(active){
-  const t=[['home','Trang chủ',I.home],['lists','Danh sách',I.mark],['browse','Duyệt',I.grid],['new','Mới',I.spark],['account','Tài khoản',I.user]];
+  const t=[['home','Trang chủ',I.home],['search','Tìm kiếm',I.search],['browse','Duyệt',I.grid],['new','Mới',I.spark],['account','Tài khoản',I.user]];
   $('#tabin').innerHTML=t.map(([k,n,ic])=>`<a href="#/${k}" class="${k===active?'on':''}">${ic}<span>${n}</span></a>`).join('');
 }
 function route(){
@@ -397,11 +425,11 @@ function route(){
   const h=(location.hash||'#/home').replace(/^#\/?/,''), p=h.split('/').map(decodeURIComponent), r=p[0]||'home';
   const noNav=['title','watch'].includes(r);
   document.body.classList.toggle('nonav',noNav);
-  if(!noNav) tabbar(['home','lists','browse','new','account'].includes(r)?r:(r==='search'?'':(r==='genre'||r==='year'||r==='years'?'browse':'home')));
+  if(!noNav) tabbar(['home','search','browse','new','account'].includes(r)?r:(r==='lists'||r==='login'||r==='register'?'account':(r==='genre'||r==='year'||r==='years'?'browse':'home')));
   const tok=nav;
   ({home:vHome,lists:vLists,browse:vBrowse,new:vNew,account:vAccount,search:vSearch,
     title:()=>vTitle(p[1],p[2],tok),watch:()=>vWatch(p[1],p[2],p[3]==null?null:+p[3]||0,p[4]==null?null:+p[4]||0,tok),
-    genre:()=>vGenre(p[1]),year:()=>vYear(p[1]),years:vYears}[r]||vHome)(tok);
+    genre:()=>vGenre(p[1]),login:()=>vAuth('login'),register:()=>vAuth('register'),year:()=>vYear(p[1]),years:vYears}[r]||vHome)(tok);
 }
 addEventListener('hashchange',route);
 addEventListener('error',e=>{
@@ -454,7 +482,7 @@ if('serviceWorker' in navigator && /^https?:/.test(location.protocol)) addEventL
 
 /* ================= Trang chủ ================= */
 async function vHome(tok){
-  setView(`<div class="hero" id="hero"><div class="top">${LOGO}<div style="display:flex;gap:6px;align-items:center"><a class="chip" href="#/account">${SRC_NAME[src]}</a><a class="ib" href="#/search">${I.search}</a></div></div></div><div id="rows"></div>`);
+  setView(`<div class="hero" id="hero"><div class="top">${LOGO}<div style="display:flex;gap:6px;align-items:center"><a class="chip" href="#/account">${SRC_NAME[src]}</a><a class="ib" href="#/search">${I.search}</a><a href="#/account" aria-label="Tài khoản">${avatar(32)}</a></div></div></div><div id="rows"></div>`);
   const rows=$('#rows');
   if(!standalone()&&!store.get('fa_inst_x',false)){
     rows.insertAdjacentHTML('beforebegin',`<div class="inst" id="inst"><img src="icon-192.png" alt=""><div><b>Thêm vào màn hình chính</b>Mở nhanh như một ứng dụng</div><button class="btn pri" id="ib1">Thêm</button><button class="ib" id="ib2" aria-label="Đóng">${I.close}</button></div>`);
@@ -463,7 +491,7 @@ async function vHome(tok){
   // Tiếp tục xem
   const hist=getHist();
   if(hist.length) rows.innerHTML+=rowHtml('Tiếp tục xem',hist.slice(0,12).map(h=>({...h,ep:h.epName?'Tập '+h.epName.replace(/^Tập\s*/i,''):''})));
-  const defs=[['Anime thịnh hành',{}],['Mới cập nhật',{kind:'new'}],...GENRES.slice(0,5).map(([s,n])=>['Anime '+n.toLowerCase(),{cat:s}])];
+  const defs=[['Phim mới cập nhật',{}],...TYPES.map(([t,n])=>[n,{type:t}]),...GENRES.slice(0,6).map(([c,n])=>['Phim '+n.toLowerCase(),{cat:c}])];
   const slots=defs.map(()=>{const d=document.createElement('div');rows.appendChild(d);return d});
   let heroItems=[];
   defs.forEach(async([title,opt],i)=>{
@@ -526,14 +554,14 @@ function vSearch(tok){
 /* ================= Duyệt / Mới / Thể loại / Năm ================= */
 function vBrowse(){
   setView(`<div class="bar"><span class="sp"></span><h1>Duyệt</h1><a class="ib" href="#/search">${I.search}</a></div>
-  <div class="chips" id="chips"><button class="pill on" data-c="">Tất cả</button>${GENRES.map(([s,n])=>`<button class="pill" data-c="${s}">${n}</button>`).join('')}</div><div id="g"></div>`);
-  const run=c=>grid($('#g'),p=>fetchList({page:p,cat:c||undefined}));
+  <div class="chips" id="chips"><button class="pill on" data-c="">Tất cả</button>${TYPES.map(([t,n])=>`<button class="pill" data-c="t:${t}">${n}</button>`).join('')}${GENRES.map(([c,n])=>`<button class="pill" data-c="g:${c}">${n}</button>`).join('')}</div><div id="g"></div>`);
+  const run=c=>{ const [k,v]=(c||'').split(':'); const o=k==='t'?{type:v}:k==='g'?{cat:v}:{}; grid($('#g'),p=>fetchList({...o,page:p})); };
   run('');
   $$('#chips .pill').forEach(b=>b.onclick=()=>{$$('#chips .pill').forEach(x=>x.classList.remove('on'));b.classList.add('on');run(b.dataset.c)});
 }
 function vNew(){
   setView(`<div class="bar"><span class="sp"></span><h1>Mới cập nhật</h1><a class="ib" href="#/years" aria-label="Năm phát hành">${I.spark}</a></div><div id="g"></div>`);
-  grid($('#g'),p=>fetchList({page:p,kind:'new'}));
+  grid($('#g'),p=>fetchList({page:p}));
 }
 function vGenre(slug){
   const n=(GENRES.find(g=>g[0]===slug)||[0,slug])[1];
@@ -541,7 +569,7 @@ function vGenre(slug){
   grid($('#g'),p=>fetchList({page:p,cat:slug}));
 }
 function vYear(y){
-  setView(`<div class="bar"><a class="ib" href="#/years">${I.back}</a><h1>Anime ${esc(y)}</h1><span class="ib"></span></div><div id="g"></div>`);
+  setView(`<div class="bar"><a class="ib" href="#/years">${I.back}</a><h1>Phim ${esc(y)}</h1><span class="ib"></span></div><div id="g"></div>`);
   grid($('#g'),p=>fetchList({page:p,year:y}));
 }
 function vYears(){
@@ -556,34 +584,137 @@ function vLists(){
     const l=tab==='list'?getList():getHist();
     setView(`<div class="bar"><span class="sp"></span><h1>Danh sách của tôi</h1><a class="ib" href="#/search">${I.search}</a></div>
       <div class="tabs"><button data-t="list" class="${tab==='list'?'on':''}">Yêu thích</button><button data-t="hist" class="${tab==='hist'?'on':''}">Lịch sử</button></div>
-      ${l.length?l.map(it=>`<a class="lr p" href="#/watch/${it.src}/${encodeURIComponent(it.slug)}"><div class="th"><img src="${esc(it.thumb)}" data-alt="${esc(it.poster)}" alt=""></div><div class="tx"><b>${esc(it.name)}</b><span>${esc(tab==='hist'&&it.epName?'Đang xem tập '+it.epName:sub(it))}</span></div></a>`).join(''):
+      ${l.length?l.map(it=>`<a class="lr p" href="#/watch/${it.src}/${encodeURIComponent(it.slug)}"><div class="th"><img src="${esc(it.thumb)}" data-alt="${esc(it.poster)}" alt=""></div><div class="tx"><b>${esc(it.name)}</b><span>${esc(tab==='hist'&&it.epName?'Đang xem tập '+it.epName:sub(it))}</span></div><button class="ib rmv" data-k="${esc(it.src+'|'+it.slug)}" aria-label="Xoá">${I.close}</button></a>`).join(''):
       `<div class="empty"><svg width="150" height="150" viewBox="0 0 150 150"><defs><linearGradient id="eg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#0a7aff"/><stop offset="1" stop-color="#002290"/></linearGradient></defs><circle cx="75" cy="75" r="60" fill="url(#eg)" opacity=".18"/><circle cx="75" cy="75" r="42" fill="url(#eg)"/><path d="M64 54l32 21-32 21z" fill="#fff"/><circle cx="118" cy="38" r="5" fill="none" stroke="#5aa8ff" stroke-width="2"/><circle cx="28" cy="104" r="4" fill="#0a7aff"/></svg>
-      <h3>${tab==='list'?'Danh sách của bạn còn trống.':'Bạn chưa xem gì cả.'}</h3><p>${tab==='list'?'Hãy thêm vài bộ anime thật hay vào đây nhé!':'Bắt đầu xem để lưu lịch sử tại đây.'}</p><a class="btn pri" href="#/browse">Duyệt tất cả</a></div>`}`);
+      <h3>${tab==='list'?'Danh sách của bạn còn trống.':'Bạn chưa xem gì cả.'}</h3><p>${tab==='list'?'Hãy thêm vài bộ phim thật hay vào đây nhé!':'Bắt đầu xem để lưu lịch sử tại đây.'}</p><a class="btn pri" href="#/browse">Duyệt tất cả</a></div>`}`);
     $$('.tabs button').forEach(b=>b.onclick=()=>{tab=b.dataset.t;store.set('fa_tab',tab);draw()});
+    $$('.rmv').forEach(b=>b.onclick=e=>{e.preventDefault();e.stopPropagation();const k=b.dataset.k,f=x=>x.src+'|'+x.slug!==k;
+      if(tab==='list') store.set(K('list'),getList().filter(f)); else store.set(K('hist'),getHist().filter(f)); draw();});
   };
   draw();
 }
 
 /* ================= Tài khoản ================= */
+function sheet(html,mount){
+  const d=document.createElement('div'); d.className='sheet'; d.innerHTML=`<div class="in">${html}</div>`;
+  d.onclick=e=>{ if(e.target===d||e.target.closest('[data-x]')) d.remove(); };
+  document.body.appendChild(d); mount&&mount(d); return d;
+}
+function readAvatar(file){
+  return new Promise((ok,no)=>{ const r=new FileReader();
+    r.onload=()=>{ const im=new Image(); im.onload=()=>{ const n=200,c=document.createElement('canvas'); c.width=c.height=n; const m=Math.min(im.width,im.height);
+        c.getContext('2d').drawImage(im,(im.width-m)/2,(im.height-m)/2,m,m,0,0,n,n); ok(c.toDataURL('image/jpeg',.85)); }; im.onerror=no; im.src=r.result; };
+    r.onerror=no; r.readAsDataURL(file); });
+}
+function updateUser(patch){ const n=sess(), all=users(); if(!n||!all[n]) return; all[n]={...all[n],...patch}; store.set('fa_users',all); }
+const keyOf=x=>x.src+'|'+x.slug;
+function exportBackup(){
+  const u=me(), data={app:'flix-anime',v:1,at:new Date().toISOString(),user:u?{name:u.name,display:u.display,avatar:u.avatar}:null,list:getList(),hist:getHist(),src};
+  const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([JSON.stringify(data)],{type:'application/json'}));
+  a.download=`flix-anime-${u?u.name:'khach'}-${new Date().toISOString().slice(0,10)}.json`;
+  document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(a.href),4000); toast('Đã tạo file sao lưu');
+}
+async function importBackup(file){
+  try{
+    const d=JSON.parse(await file.text()); if(d.app!=='flix-anime') throw 0;
+    const l=getList(), seenL=new Set(l.map(keyOf)); (d.list||[]).forEach(x=>{ if(x&&x.slug&&!seenL.has(keyOf(x))) l.push(x); });
+    const h=getHist(), seenH=new Set(h.map(keyOf)); (d.hist||[]).forEach(x=>{ if(x&&x.slug&&!seenH.has(keyOf(x))) h.push(x); });
+    store.set(K('list'),l); store.set(K('hist'),h.slice(0,60));
+    const u=me(); if(u&&d.user){ const pt={}; if(!u.avatar&&d.user.avatar) pt.avatar=d.user.avatar; if(!u.display&&d.user.display) pt.display=d.user.display; if(Object.keys(pt).length) updateUser(pt); }
+    toast(`Đã khôi phục ${(d.list||[]).length} yêu thích, ${(d.hist||[]).length} lịch sử`); return true;
+  }catch{ toast('File sao lưu không hợp lệ'); return false; }
+}
 function vAccount(){
   const draw=()=>{
+    const u=me(), l=getList(), h=getHist();
+    const histRow=h.slice(0,12).map(x=>({...x,ep:x.epName?'Tập '+String(x.epName).replace(/^Tập\s*/i,''):''}));
     setView(`<div class="bar"><span class="sp"></span><h1>Tài khoản</h1><span class="ib"></span></div>
-    <div class="avatar">F</div><p style="text-align:center;font-weight:900;font-size:18px">Flix Anime</p>
-    <p style="text-align:center;color:var(--m);font-size:13px;margin:4px 0 18px">Xem anime miễn phí · Dữ liệu lưu trên thiết bị</p>
+    <div class="prof">
+      ${u?`<button class="avwrap" id="av" aria-label="Đổi ảnh đại diện">${avatar(96)}<i class="cam"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linejoin="round"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg></i></button>`:`<a class="avwrap" href="#/login">${avatar(96)}</a>`}
+      <h2>${esc(u?(u.display||u.name):'Khách')}</h2>
+      <p>${u?'@'+esc(u.name):'Đăng nhập để lưu và sao lưu lịch sử, yêu thích'}</p>
+      ${u?`<div class="prow"><button class="btn ghost" id="ed">Sửa tên</button><button class="btn ghost" id="rmav" ${u.avatar?'':'disabled style="opacity:.4"'}>Xoá ảnh</button></div>`
+         :`<div class="prow"><a class="btn pri" href="#/login">Đăng nhập</a><a class="btn ghost" href="#/register">Đăng ký</a></div>`}
+    </div>
+    <input type="file" id="file" accept="image/*" hidden><input type="file" id="rfile" accept="application/json,.json" hidden>
+    <div class="stats"><a href="#/lists" data-t="hist"><b>${h.length}</b><span>Lịch sử xem</span></a><a href="#/lists" data-t="list"><b>${l.length}</b><span>Yêu thích</span></a></div>
+    ${rowHtml('Lịch sử xem',histRow)}${rowHtml('Yêu thích',l.slice(0,12))}
     <div class="sec">Nguồn phim</div>
     <div class="seg"><button data-s="kk" class="${src==='kk'?'on':''}">KKPhim</button><button data-s="nc" class="${src==='nc'?'on':''}">NguonC</button></div>
-    <div class="list" style="margin-top:12px">
+    <div class="sec">Sao lưu</div>
+    <div class="list">
+      <button class="i" id="exp"><span>Tạo file sao lưu</span><small>.json</small></button>
+      <button class="i" id="imp"><span>Khôi phục từ file</span><small>›</small></button>
+    </div>
+    <div class="sec">Khác</div>
+    <div class="list">
       <button class="i" id="inapp"><span>Thêm vào màn hình chính</span><small>${standalone()?'Đã cài':'›'}</small></button>
-      <button class="i" id="ch"><span>Xoá lịch sử xem</span><small>${getHist().length} mục</small></button>
-      <button class="i" id="cl"><span>Xoá danh sách yêu thích</span><small>${getList().length} mục</small></button>
+      <button class="i" id="ch"><span>Xoá lịch sử xem</span><small>${h.length} mục</small></button>
+      <button class="i" id="cl"><span>Xoá danh sách yêu thích</span><small>${l.length} mục</small></button>
       <a class="i" href="#/years"><span>Năm phát hành</span><small>›</small></a>
-    </div>`);
+      ${u?`<button class="i" id="out"><span>Đăng xuất</span><small>›</small></button><button class="i danger" id="del"><span>Xoá tài khoản</span><small>›</small></button>`:''}
+    </div>
+    <p class="empty-s" style="padding-bottom:30px">Dữ liệu được lưu trên thiết bị này. Dùng "Tạo file sao lưu" để chuyển sang máy khác.</p>`);
+    $$('.stats a').forEach(a=>a.onclick=()=>store.set('fa_tab',a.dataset.t));
     $$('.seg button').forEach(b=>b.onclick=()=>{src=b.dataset.s;store.set('fa_src',src);cache.clear();toast('Đã chuyển sang '+SRC_NAME[src]);draw()});
     $('#inapp').onclick=installApp;
-    $('#ch').onclick=()=>{store.set('fa_hist',[]);toast('Đã xoá lịch sử');draw()};
-    $('#cl').onclick=()=>{store.set('fa_list',[]);toast('Đã xoá danh sách');draw()};
+    $('#exp').onclick=exportBackup;
+    $('#imp').onclick=()=>$('#rfile').click();
+    $('#rfile').onchange=async e=>{ const f=e.target.files[0]; if(f&&await importBackup(f)) draw(); };
+    $('#ch').onclick=()=>{ if(confirm('Xoá toàn bộ lịch sử xem?')){store.set(K('hist'),[]);toast('Đã xoá lịch sử');draw()} };
+    $('#cl').onclick=()=>{ if(confirm('Xoá toàn bộ danh sách yêu thích?')){store.set(K('list'),[]);toast('Đã xoá danh sách');draw()} };
+    if(u){
+      $('#av').onclick=()=>$('#file').click();
+      $('#file').onchange=async e=>{ const f=e.target.files[0]; if(!f) return; try{ updateUser({avatar:await readAvatar(f)}); toast('Đã đổi ảnh đại diện'); draw(); }catch{ toast('Không đọc được ảnh'); } };
+      $('#rmav').onclick=()=>{ updateUser({avatar:''}); draw(); };
+      $('#ed').onclick=()=>sheet(`<h3>Sửa tên hiển thị</h3><input type="text" id="dn" maxlength="30" value="${esc(u.display||u.name)}" style="margin-bottom:16px"><button class="btn pri" id="ok" style="width:100%;margin-bottom:10px">Lưu</button><button class="btn ghost" data-x style="width:100%">Huỷ</button>`,d=>{
+        $('#ok',d).onclick=()=>{ const v=$('#dn',d).value.trim(); if(!v) return; updateUser({display:v}); d.remove(); draw(); };
+      });
+      $('#out').onclick=()=>{ store.set('fa_session',null); toast('Đã đăng xuất'); draw(); };
+      $('#del').onclick=()=>{ if(!confirm('Xoá tài khoản và toàn bộ dữ liệu của nó trên thiết bị này? Không thể hoàn tác.')) return;
+        const n=u.name, all=users(); delete all[n]; store.set('fa_users',all);
+        try{ localStorage.removeItem(`fa_u:${n}:list`); localStorage.removeItem(`fa_u:${n}:hist`); }catch{}
+        store.set('fa_session',null); toast('Đã xoá tài khoản'); draw(); };
+    }
   };
   draw();
+}
+function vAuth(mode){
+  const reg=mode==='register';
+  setView(`<div class="bar"><a class="ib" href="#/account">${I.back}</a><h1>${reg?'Đăng ký':'Đăng nhập'}</h1><span class="ib"></span></div>
+  <form class="auth" id="f" novalidate>
+    <p class="note">${reg?'Tạo tài khoản để lưu lịch sử xem và yêu thích. Dữ liệu hiện có trên máy này sẽ được chuyển vào tài khoản mới. Tài khoản lưu trên thiết bị; dùng "Tạo file sao lưu" để chuyển sang máy khác.':'Đăng nhập tài khoản đã tạo trên thiết bị này. Nếu bạn dùng máy mới, hãy đăng ký rồi chọn "Khôi phục từ file".'}</p>
+    <label>Tên đăng nhập<input id="u" autocapitalize="none" autocorrect="off" spellcheck="false" autocomplete="username" placeholder="3–20 ký tự: chữ, số, _ ."></label>
+    ${reg?'<label>Tên hiển thị (tuỳ chọn)<input id="dn" maxlength="30"></label>':''}
+    <label>Mật khẩu<input id="p" type="password" autocomplete="${reg?'new-password':'current-password'}" placeholder="Ít nhất 6 ký tự"></label>
+    ${reg?'<label>Nhập lại mật khẩu<input id="p2" type="password" autocomplete="new-password"></label>':''}
+    <p class="err" id="err"></p>
+    <button class="btn pri" style="width:100%" id="go">${reg?'Đăng ký':'Đăng nhập'}</button>
+    <p class="alt">${reg?'Đã có tài khoản? <a href="#/login">Đăng nhập</a>':'Chưa có tài khoản? <a href="#/register">Đăng ký</a>'}</p>
+  </form>`);
+  const err=m=>{$('#err').textContent=m};
+  $('#f').onsubmit=async e=>{
+    e.preventDefault(); err('');
+    const name=$('#u').value.trim().toLowerCase(), pw=$('#p').value, all=users();
+    if(!/^[a-z0-9_.]{3,20}$/.test(name)) return err('Tên đăng nhập 3–20 ký tự, chỉ gồm chữ, số, _ và .');
+    if(pw.length<6) return err('Mật khẩu cần ít nhất 6 ký tự');
+    const btn=$('#go'); btn.disabled=true;
+    try{
+      if(reg){
+        if($('#p2').value!==pw) throw new Error('Mật khẩu nhập lại không khớp');
+        if(all[name]) throw new Error('Tên đăng nhập đã tồn tại');
+        const h=await hashPw(pw), gl=store.get('fa_list',[]), gh=store.get('fa_hist',[]);
+        all[name]={...h,display:$('#dn').value.trim()||name,avatar:'',created:Date.now()};
+        store.set('fa_users',all); store.set(`fa_u:${name}:list`,gl); store.set(`fa_u:${name}:hist`,gh);
+        store.set('fa_session',name); toast('Đăng ký thành công');
+      } else {
+        const u=all[name]; if(!u) throw new Error('Sai tên đăng nhập hoặc mật khẩu');
+        const h=await hashPw(pw,u.salt); if(h.hash!==u.hash) throw new Error('Sai tên đăng nhập hoặc mật khẩu');
+        store.set('fa_session',name); toast('Xin chào, '+(u.display||name));
+      }
+      location.hash='#/account';
+    }catch(ex){ err(ex.message||'Có lỗi xảy ra'); btn.disabled=false; }
+  };
 }
 
 /* ================= Chi tiết phim ================= */

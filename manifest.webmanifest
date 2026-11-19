@@ -1,7 +1,7 @@
 {
   "name": "Flix Anime",
   "short_name": "Flix Anime",
-  "description": "Xem anime miễn phí",
+  "description": "Xem phim miễn phí",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
