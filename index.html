@@ -7,10 +7,10 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Flix Anime">
+<meta name="apple-mobile-web-app-title" content="RạpDN">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="icon-180.png">
-<title>Flix Anime</title>
+<title>RạpDN</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%230a7aff'/%3E%3Cstop offset='1' stop-color='%23002290'/%3E%3C/linearGradient%3E%3C/defs%3E%3Ccircle cx='32' cy='32' r='30' fill='url(%23g)'/%3E%3Cpath d='M25 19l20 13-20 13z' fill='%23fff'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700;900&display=swap" rel="stylesheet">
@@ -24,13 +24,11 @@
 }
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 html,body{background:var(--bg);color:var(--t);font-family:Lato,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
-html{background:#0a0a0c}
-body{background:#000}
-html,body{height:100%;overflow:hidden;overscroll-behavior:none;touch-action:manipulation;-webkit-text-size-adjust:100%;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+html,body{background:#000;overscroll-behavior:none;touch-action:manipulation;-webkit-text-size-adjust:100%;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
 input,textarea{-webkit-user-select:text;user-select:text}
 img{-webkit-user-drag:none;user-drag:none}
 /* Khung app cố định: chỉ vùng nội dung cuộn, thanh tab luôn đứng yên */
-#app{position:fixed;top:0;left:0;right:0;bottom:calc(var(--gap,0px)*-1);overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;overscroll-behavior:contain}
+#app{position:fixed;top:0;left:0;right:0;bottom:0;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;overscroll-behavior:contain}
 #view{max-width:980px;margin:0 auto;min-height:100%;position:relative;padding-bottom:calc(var(--nav) + env(safe-area-inset-bottom))}
 body.nonav #view{padding-bottom:0}
 a{color:inherit;text-decoration:none}
@@ -82,7 +80,7 @@ svg{display:block}
 .chip{font-size:12px;font-weight:700;padding:4px 10px;border-radius:999px;background:rgba(255,255,255,.14);backdrop-filter:blur(6px)}
 
 /* hero */
-.hero{position:relative;height:min(74vh,640px);min-height:440px;overflow:hidden;background:var(--s1)}
+.hero{position:relative;height:min(calc(var(--H,100vh)*.74),640px);min-height:440px;overflow:hidden;background:var(--s1)}
 .hero .bg{position:absolute;inset:0;background-size:cover;background-position:center top;transition:opacity .5s}
 .hero::after{content:"";position:absolute;inset:0;background:linear-gradient(to bottom,rgba(0,0,0,.55) 0,rgba(0,0,0,0) 22%,rgba(0,0,0,.2) 48%,rgba(0,0,0,.92) 82%,#000 100%)}
 .hero .top{position:absolute;z-index:3;left:0;right:0;top:0;display:flex;align-items:center;justify-content:space-between;padding:calc(10px + env(safe-area-inset-top)) 16px}
@@ -161,7 +159,7 @@ svg{display:block}
 .desc.cl{display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
 .link{color:var(--b);font-size:12.5px;font-weight:700;padding:8px 16px;display:inline-block}
 .sel{margin:12px 16px;background:var(--s2);color:#fff;border:0;border-radius:6px;padding:10px 12px;font:inherit;font-size:13px;font-weight:700;width:calc(100% - 32px)}
-.stick{position:fixed;left:0;right:0;bottom:calc(var(--gap,0px)*-1);z-index:30;padding:10px 16px calc(10px + env(safe-area-inset-bottom));background:linear-gradient(to top,#000 70%,rgba(0,0,0,0));}
+.stick{position:fixed;left:0;right:0;bottom:0;z-index:30;padding:10px 16px calc(10px + env(safe-area-inset-bottom));background:linear-gradient(to top,#000 70%,rgba(0,0,0,0));}
 .stick .in{max-width:980px;margin:0 auto;display:flex;gap:10px}
 .dpad{padding-bottom:90px}
 
@@ -227,8 +225,10 @@ svg{display:block}
 .year{display:block;padding:17px 16px;font-size:16px}
 
 /* nav */
-#tabs{position:fixed;left:0;right:0;bottom:calc(var(--gap,0px)*-1);z-index:40;background:rgba(10,10,12,.96);backdrop-filter:blur(10px);border-top:1px solid #1d1f24;padding-bottom:env(safe-area-inset-bottom)}
-#tabs::after{content:"";position:absolute;left:0;right:0;top:100%;height:120px;background:#0a0a0c}
+#tabs{position:fixed;left:0;right:0;bottom:0;z-index:40;background:rgba(10,10,12,.96);backdrop-filter:blur(10px);border-top:1px solid #1d1f24;padding-bottom:env(safe-area-inset-bottom)}
+html.fixh #app{bottom:auto;height:var(--H)}
+html.fixh #tabs{bottom:auto;top:calc(var(--H) - var(--nav) - env(safe-area-inset-bottom))}
+html.fixh .stick{bottom:auto;height:calc(68px + env(safe-area-inset-bottom));top:calc(var(--H) - 68px - env(safe-area-inset-bottom))}
 #tabs .in{max-width:980px;margin:0 auto;display:flex;height:var(--nav)}
 #tabs a{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;font-size:10.5px;color:#d9dbe0}
 #tabs a.on{color:var(--b)}
@@ -263,7 +263,7 @@ body.nonav #tabs{display:none}
   .prow .btn{min-width:108px}
   .lr .th{width:100px}
 }
-@media(max-height:850px){.hero{height:64vh;min-height:400px}}
+@media(max-height:850px){.hero{height:calc(var(--H,100vh)*.64);min-height:400px}}
 @media(min-width:760px){
   .card{width:170px}
   .hero{height:min(70vh,600px)}
@@ -442,7 +442,7 @@ const I={
   more:'<svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="5" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="12" cy="19" r="2"/></svg>',
   check:'<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12l5 5L20 6"/></svg>'
 };
-const LOGO = `<a class="logo" href="#/home"><i>${I.playf}</i><b>Flix Anime</b></a>`;
+const LOGO = `<a class="logo" href="#/home"><i>${I.playf}</i><b>RạpDN</b></a>`;
 
 /* ================= Router ================= */
 const view = $('#view');
@@ -504,7 +504,7 @@ function installApp(){
   if(deferredPrompt){deferredPrompt.prompt();deferredPrompt.userChoice.finally(()=>{deferredPrompt=null});return}
   const ua=navigator.userAgent, ios=/iphone|ipad|ipod/i.test(ua)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
   const d=document.createElement('div'); d.className='sheet';
-  d.innerHTML=`<div class="in"><h3>Thêm Flix Anime vào màn hình chính</h3><ol>${ios?
+  d.innerHTML=`<div class="in"><h3>Thêm RạpDN vào màn hình chính</h3><ol>${ios?
     '<li>Mở trang này bằng <b>Safari</b>.</li><li>Bấm nút <b>Chia sẻ</b> (ô vuông có mũi tên lên) ở thanh dưới.</li><li>Kéo xuống, chọn <b>Thêm vào MH chính</b> rồi bấm <b>Thêm</b>.</li>':
     '<li>Bấm menu <b>⋮</b> của trình duyệt (góc trên bên phải).</li><li>Chọn <b>Cài đặt ứng dụng</b> hoặc <b>Thêm vào màn hình chính</b>.</li><li>Bấm <b>Cài đặt</b> để xác nhận.</li>'}</ol><button class="btn pri">Đã hiểu</button></div>`;
   d.onclick=e=>{if(e.target===d||e.target.closest('button'))d.remove()};
@@ -641,20 +641,25 @@ function readAvatar(file){
 function updateUser(patch){ const n=sess(), all=users(); if(!n||!all[n]) return; all[n]={...all[n],...patch}; store.set('fa_users',all); }
 const keyOf=x=>x.src+'|'+x.slug;
 function exportBackup(){
-  const u=me(), data={app:'flix-anime',v:1,at:new Date().toISOString(),user:u?{name:u.name,display:u.display,avatar:u.avatar}:null,list:getList(),hist:getHist(),src};
+  const u=me(), data={app:'rapdn',v:1,at:new Date().toISOString(),user:u?{name:u.name,display:u.display,avatar:u.avatar}:null,list:getList(),hist:getHist(),src};
   const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([JSON.stringify(data)],{type:'application/json'}));
-  a.download=`flix-anime-${u?u.name:'khach'}-${new Date().toISOString().slice(0,10)}.json`;
+  a.download=`rapdn-${u?u.name:'khach'}-${new Date().toISOString().slice(0,10)}.json`;
   document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(a.href),4000); toast('Đã tạo file sao lưu');
 }
 async function importBackup(file){
   try{
-    const d=JSON.parse(await file.text()); if(d.app!=='flix-anime') throw 0;
+    const d=JSON.parse(await file.text()); if(d.app!=='rapdn'&&d.app!=='flix-anime') throw 0;
     const l=getList(), seenL=new Set(l.map(keyOf)); (d.list||[]).forEach(x=>{ if(x&&x.slug&&!seenL.has(keyOf(x))) l.push(x); });
     const h=getHist(), seenH=new Set(h.map(keyOf)); (d.hist||[]).forEach(x=>{ if(x&&x.slug&&!seenH.has(keyOf(x))) h.push(x); });
     store.set(K('list'),l); store.set(K('hist'),h.slice(0,60));
     const u=me(); if(u&&d.user){ const pt={}; if(!u.avatar&&d.user.avatar) pt.avatar=d.user.avatar; if(!u.display&&d.user.display) pt.display=d.user.display; if(Object.keys(pt).length) updateUser(pt); }
     toast(`Đã khôi phục ${(d.list||[]).length} yêu thích, ${(d.hist||[]).length} lịch sử`); return true;
   }catch{ toast('File sao lưu không hợp lệ'); return false; }
+}
+function screenInfo(){
+  const pr=document.createElement('div'); pr.style.cssText='position:absolute;visibility:hidden;padding-bottom:env(safe-area-inset-bottom);padding-top:env(safe-area-inset-top)'; document.body.appendChild(pr);
+  const cs=getComputedStyle(pr), t=cs.paddingTop, bt=cs.paddingBottom; pr.remove();
+  return `${standalone()?'App':'Trình duyệt'} · cửa sổ ${innerWidth}×${innerHeight} · màn hình ${screen.width}×${screen.height} · H ${getComputedStyle(document.documentElement).getPropertyValue('--H')} · an toàn ${t}/${bt}`;
 }
 function vAccount(){
   const draw=()=>{
@@ -686,7 +691,8 @@ function vAccount(){
       <a class="i" href="#/years"><span>Năm phát hành</span><small>›</small></a>
       ${u?`<button class="i" id="out"><span>Đăng xuất</span><small>›</small></button><button class="i danger" id="del"><span>Xoá tài khoản</span><small>›</small></button>`:''}
     </div>
-    <p class="empty-s" style="padding-bottom:30px">Dữ liệu được lưu trên thiết bị này. Dùng "Tạo file sao lưu" để chuyển sang máy khác.</p>`);
+    <p class="empty-s" style="padding-bottom:30px">Dữ liệu được lưu trên thiết bị này. Dùng "Tạo file sao lưu" để chuyển sang máy khác.</p>
+    <p class="empty-s" style="padding:0 16px 30px;font-size:11px;opacity:.6">${screenInfo()}</p>`);
     $$('.stats a').forEach(a=>a.onclick=()=>store.set('fa_tab',a.dataset.t));
     $$('.seg button').forEach(b=>b.onclick=()=>{src=b.dataset.s;store.set('fa_src',src);cache.clear();toast('Đã chuyển sang '+SRC_NAME[src]);draw()});
     $('#inapp').onclick=installApp;
@@ -773,7 +779,7 @@ async function vTitle(s,slug,tok){
     $('#more').onclick=()=>{const e=$('#ds');e.classList.toggle('cl');$('#more').textContent=e.classList.contains('cl')?'Chi tiết hơn':'Thu gọn';
       if(!e.classList.contains('cl')&&!$('#ex')) e.insertAdjacentHTML('afterend',`<div class="desc" id="ex" style="margin-top:10px;color:var(--m)">${d.actors?'Diễn viên: '+esc(d.actors)+'<br>':''}${d.country?'Quốc gia: '+esc(d.country)+'<br>':''}${d.total?'Số tập: '+esc(d.total)+'<br>':''}${d.status?'Trạng thái: '+esc(d.status):''}</div>`);};
     $('#a1').onclick=$('#a3').onclick=()=>{toggleList(d);draw()};
-    $('#a2').onclick=async()=>{const url=location.href;try{ if(navigator.share) await navigator.share({title:d.name+' · Flix Anime',url}); else {await navigator.clipboard.writeText(url);toast('Đã sao chép liên kết');} }catch{}};
+    $('#a2').onclick=async()=>{const url=location.href;try{ if(navigator.share) await navigator.share({title:d.name+' · RạpDN',url}); else {await navigator.clipboard.writeText(url);toast('Đã sao chép liên kết');} }catch{}};
     $$('.tabs button').forEach(b=>b.onclick=()=>{tab=b.dataset.t;draw()});
     const tc=$('#tc');
     if(tab==='eps'){
@@ -872,16 +878,6 @@ async function vWatch(s,slug,si,ei,tok){
   play(mode);
 }
 
-// iOS (app đã thêm vào màn hình chính) đôi khi cho vùng hiển thị ngắn hơn màn hình thật -> đo phần thiếu và kéo khung xuống cho khít
-function fitScreen(){
-  let gap=0;
-  if(standalone()){
-    const full=innerHeight>innerWidth?Math.max(screen.width,screen.height):Math.min(screen.width,screen.height);
-    gap=full-innerHeight; if(gap<0||gap>80) gap=0;
-  }
-  document.documentElement.style.setProperty('--gap',gap+'px');
-}
-fitScreen(); addEventListener('resize',fitScreen); addEventListener('orientationchange',()=>setTimeout(fitScreen,300));
 ['gesturestart','gesturechange','gestureend'].forEach(t=>document.addEventListener(t,e=>e.preventDefault()));
 route();
 </script>
